@@ -1,0 +1,6 @@
+.project
+.classpath
+.settings
+.factorypath
+target
+src/main/resources
