@@ -1,126 +1,110 @@
 package sk.pa3kc;
 
-import static org.lwjgl.system.MemoryUtil.NULL;
-
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL;
-
-import sk.pa3kc.pojo.Model;
+import sk.pa3kc.entities.Camera;
+import sk.pa3kc.entities.Entity;
+import sk.pa3kc.entities.Light;
+import sk.pa3kc.pojo.RawModel;
 import sk.pa3kc.pojo.Texture;
+import sk.pa3kc.pojo.TexturedModel;
+import sk.pa3kc.pojo.matrix.Matrix4f;
+import sk.pa3kc.pojo.matrix.Vector3f;
+import sk.pa3kc.shaders.FragmentShader;
+import sk.pa3kc.shaders.StaticShaderProgram;
+import sk.pa3kc.shaders.VertexShader;
 import sk.pa3kc.ui.GLWindow;
+import sk.pa3kc.ui.calls.KeyCallback;
+import sk.pa3kc.util.Loader;
+import sk.pa3kc.util.loaders.ObjLoader;
+import sk.pa3kc.util.loaders.TextureLoader;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL21.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class App {
-    public static final String TEXTURES_BLOCKS = "textures/blocks";
+    public static final String PATH_SHADERS_VERTEX = "shaders/vertex";
+    public static final String PATH_SHADERS_FRAGMENT = "shaders/fragment";
 
-    public Texture[] textures = null;
+    public static final KeyCallback KEYBOARD = new KeyCallback();
+    public static final float FOV = 70f;
+    public static final float NEAR_PLANE = 0.1f;
+    public static final float FAR_PLANE = 1000f;
+
+    public static int WINDOW_WIDTH;
+    public static int WINDOW_HEIGHT;
+
+    public static final Loader LOADER = new Loader();
+    public static final TextureLoader TEXTURE_LOADER = new TextureLoader();
+    public static final Camera CAMERA = new Camera();
+    public static final Light LIGHT = new Light(
+        new Vector3f(0f, 0f, -55f),
+        new Vector3f(1f, 1f, 1f)
+    );
+
+    public static VertexShader VERTEX_SHADER;
+    public static FragmentShader FRAGMENT_SHADER;
+    public static StaticShaderProgram SHADER_PROGRAM;
 
     public int textureIndex = 0;
 
     public final GLWindow window;
 
     private App(String... args) {
-        final float[] vertecies = new float[] {
-            -0.5f, -0.5f, 0f,
-            0.5f, -0.5f, 0f,
-            -0.5f, 0.5f, 0f,
-
-            -0.5f, 0.5f, 0f,
-            0.5f, -0.5f, 0f,
-            0.5f, 0.5f, 0f
-        };
-
-        final int[] texture = new int[] {
-            0, 1,
-            1, 1,
-            0, 0,
-
-            0, 0,
-            1, 1,
-            1, 0
-        };
-
         final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         final GraphicsDevice screen = env.getDefaultScreenDevice();
         final GraphicsConfiguration config = screen.getDefaultConfiguration();
         final Rectangle bounds = config.getBounds();
 
-        this.window = new GLWindow(bounds.width, bounds.height, "My Game");
+        App.WINDOW_WIDTH = bounds.width;
+        App.WINDOW_HEIGHT = bounds.height;
 
-        this.window.setKeyCallback((window, key, scancode, action, mods) -> {
-            if (action == GLFW_RELEASE) {
-                switch (key) {
-                    case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(window, true); break;
-                    case GLFW_KEY_A:
-                        if (this.textures == null) break;
-                        final int tmp = this.textureIndex+1;
-                        this.textureIndex = tmp > this.textures.length ? 0 : tmp;
-                    break;
-                }
+        this.window = new GLWindow(bounds.width, bounds.height, "My Game") {
+            @Override
+            public void close() {
+                App.LOADER.close();
+                App.SHADER_PROGRAM.close();
+                super.close();
             }
-        });
+        };
 
-        this.window.show();
+        this.window.setKeyCallback(App.KEYBOARD);
 
-        final Model model = new Model(vertecies, texture);
+        glfwMakeContextCurrent(this.window.getWindowId());
 
-        this.textures = loadTextures();
+        App.VERTEX_SHADER = new VertexShader(new File(PATH_SHADERS_VERTEX, "1.mvs"));
+        App.FRAGMENT_SHADER = new FragmentShader(new File(PATH_SHADERS_FRAGMENT, "1.mfs"));
+        App.SHADER_PROGRAM = new StaticShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
 
-        this.window.setBackgroundColor(0f, 0f, 0f);
+        final Matrix4f projectionMatrix = Matrix4f.projectionMatrix();
+        App.SHADER_PROGRAM.start();
+        App.SHADER_PROGRAM.loadProjectionMatrix(projectionMatrix);
+        App.SHADER_PROGRAM.stop();
 
-    }
-
-    private Texture[] loadTextures() {
-        final InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(TEXTURES_BLOCKS);
-
-        if (in == null) {
-            throw new RuntimeException("Unable to open " + TEXTURES_BLOCKS);
-        }
-
-        byte[] b = null;
+        RawModel model = null;
         try {
-            b = new byte[in.available()];
-            in.read(b);
+            model = ObjLoader.loadObjModel(args[0], App.LOADER);
         } catch (Throwable ex) {
             ex.printStackTrace();
-            return null;
         }
+        final Texture texture = App.TEXTURE_LOADER.loadBlockTexture("crafting_table_top.png");
 
-        final String[] s = new String(b).split("\n");
+        glfwMakeContextCurrent(NULL);
 
-        ArrayList<String> paths = new ArrayList<String>(Arrays.asList(s));
-        ArrayList<File> textureFiles = new ArrayList<>();
-        Texture[] textures = null;
+        final TexturedModel texturedModel = new TexturedModel(model, texture);
+        final Entity entity = new Entity(texturedModel, new Vector3f(0, 0, -50), 0, 0, 0, 1);
 
-        for (String path : paths) {
-            final File file = new File(TEXTURES_BLOCKS, path);
+        this.window.setBackgroundColor(1f, 0f, 0f);
+        this.window.show();
 
-            if (file != null && file.exists() && file.getName().endsWith(".png")) {
-                textureFiles.add(file);
-            }
-        }
-
-        textures = new Texture[textureFiles.size()];
-
-        for (int i = 0; i < textureFiles.size(); i++) {
-            textures[i] = new Texture(textureFiles.get(i));
-        }
-
-        return textures;
+        this.window.uiThread.add(entity);
     }
 
     public static void main(String[] args) {
-        new App();
+        new App(args);
     }
 }

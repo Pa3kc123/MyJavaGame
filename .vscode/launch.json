@@ -10,7 +10,10 @@
             "request": "launch",
             "mainClass": "sk.pa3kc.App",
             "projectName": "myGame",
-            "cwd": "${workspaceFolder}/target/classes"
+            "cwd": "${workspaceFolder}/target/classes",
+            "args": [
+                "${workspaceFolder}/assets/crystal.obj"
+            ]
         }
     ]
 }

@@ -8,5 +8,10 @@
         "**.png": true,
         "**.mcmeta": true,
         "**.class": true
+    },
+
+    "files.associations": {
+        "*.mfs": "glsl",
+        "*.mvs": "glsl",
     }
 }
