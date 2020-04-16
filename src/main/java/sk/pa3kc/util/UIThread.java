@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class UIThread implements Runnable {
@@ -81,7 +80,7 @@ public class UIThread implements Runnable {
 
         while (!glfwWindowShouldClose(this.windowId) && this.state != ThreadState.STOPPING) {
             GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
             glfwPollEvents();
 
@@ -103,8 +102,8 @@ public class UIThread implements Runnable {
                 GL20.glEnableVertexAttribArray(Loader.NORMALS_ATTR_ID);
 
                 App.SHADER_PROGRAM.loadLight(App.LIGHT);
-                // entity.rotate(1f, 0.5f, 0f);
-                entity.move(0f, 0f, -0.2f);
+                entity.rotate(0f, 0.5f, 0f);
+                // entity.move(0f, 0f, -0.2f);
 
                 final Matrix4f transformationMatrix = MatrixMath.createTransformationMatrix(
                     entity.getPosition(),

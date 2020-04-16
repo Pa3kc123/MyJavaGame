@@ -96,7 +96,7 @@ public class App {
         glfwMakeContextCurrent(NULL);
 
         final TexturedModel texturedModel = new TexturedModel(model, texture);
-        final Entity entity = new Entity(texturedModel, new Vector3f(0, 0, -50), 0, 0, 0, 1);
+        final Entity entity = new Entity(texturedModel, new Vector3f(0, 0, -100), 0, 0, 0, 1);
 
         this.window.setBackgroundColor(1f, 0f, 0f);
         this.window.show();

@@ -27,8 +27,8 @@ public abstract class MatrixMath {
     public static Matrix4f createViewMatrix(Camera camera) {
         final Matrix4f viewMatrix = Matrix4f.identified();
 
-        rotate((float) Math.toRadians(camera.pitch), new Vector3f(1f, 0f, 0f), viewMatrix, viewMatrix);
-		rotate((float) Math.toRadians(camera.yaw), new Vector3f(0f, 1f, 0f), viewMatrix, viewMatrix);
+        rotate((float) Math.toRadians(camera.getPitch()), new Vector3f(1f, 0f, 0f), viewMatrix, viewMatrix);
+		rotate((float) Math.toRadians(camera.getYaw()), new Vector3f(0f, 1f, 0f), viewMatrix, viewMatrix);
 
 		final Vector3f negCameraPos = Vector3f.negate(camera.getPosition());
 
