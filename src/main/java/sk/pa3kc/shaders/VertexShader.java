@@ -2,7 +2,7 @@ package sk.pa3kc.shaders;
 
 import java.io.File;
 
-public class VertexShader extends AShader {
+public class VertexShader extends Shader {
     public VertexShader(File file) {
         loadShader(file);
     }
@@ -10,7 +10,7 @@ public class VertexShader extends AShader {
     @Override
     public void loadShader(File file) {
         try {
-            super.loadShader(file, AShader.Type.GL_VERTEX_SHADER);
+            super.loadShader(file, Shader.Type.GL_VERTEX_SHADER);
         } catch (Throwable ex) {
             ex.printStackTrace();
             System.exit(-1);

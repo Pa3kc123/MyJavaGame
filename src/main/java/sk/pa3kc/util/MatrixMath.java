@@ -43,9 +43,9 @@ public abstract class MatrixMath {
                 m.set(row, col, row == col ? 1f : 0f);
             }
         }
-    }
+	}
 
-    public static void translate(Vector3f vec, Matrix4f src, Matrix4f dest) {
+	public static Matrix4f translate(Vector3f vec, Matrix4f src, Matrix4f dest) {
         if (dest == null) {
             dest = new Matrix4f();
         }
@@ -54,6 +54,8 @@ public abstract class MatrixMath {
 		dest.add(3, 1, (src.get(0, 1) * vec.x) + (src.get(1, 1) * vec.y) + (src.get(2, 1) * vec.z));
 		dest.add(3, 2, (src.get(0, 2) * vec.x) + (src.get(1, 2) * vec.y) + (src.get(2, 2) * vec.z));
 		dest.add(3, 3, (src.get(0, 3) * vec.x) + (src.get(1, 3) * vec.y) + (src.get(2, 3) * vec.z));
+
+		return dest;
     }
 
     public static void rotate(float angle, Vector3f axis, Matrix4f src, Matrix4f dest) {
@@ -64,24 +66,24 @@ public abstract class MatrixMath {
         float c = (float) Math.cos(angle);
 		float s = (float) Math.sin(angle);
 		float oneminusc = 1.0f - c;
-		float xy = axis.x*axis.y;
-		float yz = axis.y*axis.z;
-		float xz = axis.x*axis.z;
-		float xs = axis.x*s;
-		float ys = axis.y*s;
-		float zs = axis.z*s;
+		float xy = axis.x * axis.y;
+		float yz = axis.y * axis.z;
+		float xz = axis.x * axis.z;
+		float xs = axis.x * s;
+		float ys = axis.y * s;
+		float zs = axis.z * s;
 
-		float f00 = axis.x*axis.x*oneminusc+c;
-		float f01 = xy*oneminusc+zs;
-		float f02 = xz*oneminusc-ys;
+		float f00 = axis.x * axis.x * oneminusc + c;
+		float f01 = xy * oneminusc + zs;
+		float f02 = xz * oneminusc - ys;
 		// n[3] not used
-		float f10 = xy*oneminusc-zs;
-		float f11 = axis.y*axis.y*oneminusc+c;
-		float f12 = yz*oneminusc+xs;
+		float f10 = xy * oneminusc - zs;
+		float f11 = axis.y * axis.y * oneminusc + c;
+		float f12 = yz * oneminusc + xs;
 		// n[7] not used
-		float f20 = xz*oneminusc+ys;
-		float f21 = yz*oneminusc-xs;
-		float f22 = axis.z*axis.z*oneminusc+c;
+		float f20 = xz * oneminusc + ys;
+		float f21 = yz * oneminusc - xs;
+		float f22 = axis.z * axis.z * oneminusc + c;
 
 		float t00 = src.get(0, 0) * f00 + src.get(1, 0) * f01 + src.get(2, 0) * f02;
 		float t01 = src.get(0, 1) * f00 + src.get(1, 1) * f01 + src.get(2, 1) * f02;

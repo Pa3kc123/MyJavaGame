@@ -89,6 +89,7 @@ public class UIThread implements Runnable {
             }
 
             App.CAMERA.move();
+            App.CAMERA.rotate();
 
             App.SHADER_PROGRAM.start();
 

@@ -8,7 +8,7 @@ import java.io.FileReader;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-public abstract class AShader implements AutoCloseable {
+public abstract class Shader implements AutoCloseable {
     public static enum Type {
         GL_VERTEX_SHADER(GL20.GL_VERTEX_SHADER),
         GL_FRAGMENT_SHADER(GL20.GL_FRAGMENT_SHADER);

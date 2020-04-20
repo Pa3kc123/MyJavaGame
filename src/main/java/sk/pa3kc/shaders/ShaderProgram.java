@@ -6,6 +6,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import sk.pa3kc.mylibrary.util.ArrayUtils;
 import sk.pa3kc.pojo.matrix.Matrix4f;
 
 public abstract class ShaderProgram implements AutoCloseable {
@@ -37,7 +38,7 @@ public abstract class ShaderProgram implements AutoCloseable {
 
         if (GL20.glGetProgrami(this.programId, GL20.GL_VALIDATE_STATUS) != GL11.GL_TRUE) {
             System.err.println(GL20.glGetProgramInfoLog(this.programId));
-            System.err.println("validation was not successful for shader program");
+            System.err.println("Validation was not successful for shader program");
             System.exit(-1);
         }
 
@@ -69,7 +70,7 @@ public abstract class ShaderProgram implements AutoCloseable {
     }
 
     protected void loadBool(int location, boolean value) {
-        GL20.glUniform1f(location, value ? 1f : 0f);
+        GL20.glUniform1i(location, value ? GL11.GL_TRUE : GL11.GL_FALSE);
     }
 
     protected void loadMatrix(int location, Matrix4f matrix) {
