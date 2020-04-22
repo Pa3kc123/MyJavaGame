@@ -6,7 +6,6 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import sk.pa3kc.mylibrary.util.ArrayUtils;
 import sk.pa3kc.pojo.matrix.Matrix4f;
 
 public abstract class ShaderProgram implements AutoCloseable {
@@ -82,7 +81,7 @@ public abstract class ShaderProgram implements AutoCloseable {
     @Override
     public void close() {
         // Stop using current program
-        stop();
+        this.stop();
 
         // Detach all shaders from current program
         GL20.glDetachShader(this.programId, this.vs.getShaderId());

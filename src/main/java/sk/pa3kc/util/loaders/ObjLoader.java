@@ -47,9 +47,9 @@ public class ObjLoader {
                     // Vertex position
                     case "v":
                         verticies.add(new Vector3f(
+                            Float.parseFloat(splits[1]),
                             Float.parseFloat(splits[2]),
-                            Float.parseFloat(splits[3]),
-                            Float.parseFloat(splits[4])
+                            Float.parseFloat(splits[3])
                         ));
                     break;
 
