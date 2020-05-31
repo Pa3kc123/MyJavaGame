@@ -6,12 +6,10 @@ import sk.pa3kc.App;
 import sk.pa3kc.pojo.matrix.Vector3f;
 
 public class Camera {
-    public Vector3f position = new Vector3f(0f, 0f, 0f);
-    public float pitch;
-    public float yaw;
-    public float roll;
-
-    public Camera() {}
+    private Vector3f position = new Vector3f(0f, 0f, 0f);
+    private float pitch = 0f;
+    private float yaw = 0f;
+    private float roll = 0f;
 
     public Vector3f getPosition() {
         return this.position;
@@ -38,6 +36,20 @@ public class Camera {
         }
         if (App.KEYBOARD.isKeyPressed(GLFW.GLFW_KEY_D)) {
             this.position.x += 0.02f;
+        }
+        if (App.KEYBOARD.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
+            this.position.y += 0.02f;
+        }
+        if (App.KEYBOARD.isKeyPressed(GLFW.GLFW_KEY_COMMA)) {
+            this.position.y -= 0.02f;
+        }
+    }
+    public void rotate() {
+        if (App.KEYBOARD.isKeyPressed(GLFW.GLFW_KEY_Q)) {
+            this.roll += 0.02f;
+        }
+        if (App.KEYBOARD.isKeyPressed(GLFW.GLFW_KEY_E)) {
+            this.roll -= 0.02f;
         }
     }
 }

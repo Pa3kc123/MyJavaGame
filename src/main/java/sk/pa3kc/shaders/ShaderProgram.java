@@ -37,7 +37,7 @@ public abstract class ShaderProgram implements AutoCloseable {
 
         if (GL20.glGetProgrami(this.programId, GL20.GL_VALIDATE_STATUS) != GL11.GL_TRUE) {
             System.err.println(GL20.glGetProgramInfoLog(this.programId));
-            System.err.println("validation was not successful for shader program");
+            System.err.println("Validation was not successful for shader program");
             System.exit(-1);
         }
 
@@ -69,7 +69,7 @@ public abstract class ShaderProgram implements AutoCloseable {
     }
 
     protected void loadBool(int location, boolean value) {
-        GL20.glUniform1f(location, value ? 1f : 0f);
+        GL20.glUniform1i(location, value ? GL11.GL_TRUE : GL11.GL_FALSE);
     }
 
     protected void loadMatrix(int location, Matrix4f matrix) {
@@ -81,7 +81,7 @@ public abstract class ShaderProgram implements AutoCloseable {
     @Override
     public void close() {
         // Stop using current program
-        stop();
+        this.stop();
 
         // Detach all shaders from current program
         GL20.glDetachShader(this.programId, this.vs.getShaderId());

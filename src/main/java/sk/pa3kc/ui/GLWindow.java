@@ -1,6 +1,7 @@
 package sk.pa3kc.ui;
 
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
@@ -78,7 +79,7 @@ public class GLWindow implements AutoCloseable {
         this.setBackgroundColor(r, g, b, 1f);
     }
     public void setBackgroundColor(float r, float g, float b, float a) {
-        glClearColor(r, g, b, a);
+        GL11.glClearColor(r, g, b, a);
     }
 
     public void setKeyCallback(GLFWKeyCallbackI keyCallback) {

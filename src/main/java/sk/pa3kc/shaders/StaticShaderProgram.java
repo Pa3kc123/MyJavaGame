@@ -1,7 +1,5 @@
 package sk.pa3kc.shaders;
 
-import java.util.HashMap;
-
 import sk.pa3kc.entities.Camera;
 import sk.pa3kc.entities.Light;
 import sk.pa3kc.pojo.matrix.Matrix4f;
@@ -9,60 +7,69 @@ import sk.pa3kc.pojo.matrix.Vector3f;
 import sk.pa3kc.util.MatrixMath;
 
 public class StaticShaderProgram extends ShaderProgram {
-    public static final HashMap<Integer, String> ATTRIBUTES = new HashMap<Integer, String>() {
-        private static final long serialVersionUID = 1L;
-
-        {
-            super.put(0, "position");
-            super.put(1, "textureCoord");
-            super.put(2, "normal");
-        }
-    };
-
-    private int location_transformationMatrix;
-    private int location_projectionMatrix;
-    private int location_viewMatrix;
-    private int location_lightPosition;
-    private int location_lightColor;
-
     public StaticShaderProgram(VertexShader vs, FragmentShader fs) {
         super(vs, fs);
     }
 
     @Override
     public void bindAttributes() {
-        for (final int key : ATTRIBUTES.keySet()) {
-            super.bindAttribute(key, ATTRIBUTES.get(key));
+        for (final Attribute attr : Attribute.values()) {
+            super.bindAttribute(attr.index, attr.name);
         }
     }
 
     @Override
     protected void getAllUniformLocations() {
-        this.location_transformationMatrix = super.getUniformLocation("transformationMatrix");
-        this.location_projectionMatrix = super.getUniformLocation("projectionMatrix");
-        this.location_viewMatrix = super.getUniformLocation("viewMatrix");
-        this.location_lightPosition = super.getUniformLocation("lightPosition");
-        this.location_lightColor = super.getUniformLocation("lightColor");
+        for (final UniformLocation ul : UniformLocation.values()) {
+            ul.location = super.getUniformLocation(ul.name);
+        }
     }
 
     public void loadTransformationMatrix(Matrix4f matrix) {
-        super.loadMatrix(this.location_transformationMatrix, matrix);
+        super.loadMatrix(UniformLocation.TRANSFORMATION_MATRIX.location, matrix);
     }
 
     public void loadProjectionMatrix(Matrix4f matrix) {
-        super.loadMatrix(this.location_projectionMatrix, matrix);
+        super.loadMatrix(UniformLocation.PROJECTION_MATRIX.location, matrix);
     }
 
     public void loadViewMatrix(Camera camera) {
         final Matrix4f matrix = MatrixMath.createViewMatrix(camera);
-        super.loadMatrix(this.location_viewMatrix, matrix);
+        super.loadMatrix(UniformLocation.VIEW_MATRIX.location, matrix);
     }
 
     public void loadLight(Light light) {
         final Vector3f pos = light.getPosition();
         final Vector3f color = light.getColor();
 
-        super.loadVector(this.location_lightPosition, pos.x, pos.y, pos.z);
-        super.loadVector(this.location_lightColor, color.x, color.y, color.z);
+        super.loadVector(UniformLocation.LIGHT_POSITION.location, pos.x, pos.y, pos.z);
+        super.loadVector(UniformLocation.LIGHT_COLOR.location, color.x, color.y, color.z);
+    }
+}
+
+enum Attribute {
+    POSITION(0, "position"),
+    TEXTURE_COORD(1, "textureCoord"),
+    NORMAL(2, "normal");
+
+    public final int index;
+    public final String name;
+    private Attribute(int index, String name) {
+        this.index = index;
+        this.name = name;
+    }
+}
+
+enum UniformLocation {
+    TRANSFORMATION_MATRIX("transformationMatrix"),
+    PROJECTION_MATRIX("projectionMatrix"),
+    VIEW_MATRIX("viewMatrix"),
+    LIGHT_POSITION("lightPosition"),
+    LIGHT_COLOR("lightColor");
+
+    public int location;
+    public final String name;
+    private UniformLocation(String name) {
+        this.name = name;
     }
 }
