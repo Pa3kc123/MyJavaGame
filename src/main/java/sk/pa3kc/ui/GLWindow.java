@@ -61,6 +61,8 @@ public class GLWindow implements AutoCloseable {
         this.capabilities = GL.createCapabilities();
 
         glEnable(GL_TEXTURE_2D);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
 
         glfwMakeContextCurrent(NULL);
 

@@ -12,7 +12,7 @@
             "projectName": "myGame",
             "cwd": "${workspaceFolder}/target/classes",
             "args": [
-                "${workspaceFolder}/assets/crystal.obj"
+                "${workspaceFolder}/assets/cube.obj"
             ]
         }
     ]

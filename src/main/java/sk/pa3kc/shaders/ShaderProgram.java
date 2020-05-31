@@ -73,8 +73,8 @@ public abstract class ShaderProgram implements AutoCloseable {
     }
 
     protected void loadMatrix(int location, Matrix4f matrix) {
-        buffer.put(matrix.getMatrix());
-        buffer.flip();
+        buffer.put(matrix.getMatrix(), 0, matrix.getMatrix().length);
+        buffer.rewind();
         GL20.glUniformMatrix4fv(location, false, buffer);
     }
 
