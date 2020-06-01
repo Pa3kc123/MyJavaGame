@@ -12,6 +12,7 @@ import sk.pa3kc.pojo.matrix.Vector3f;
 import sk.pa3kc.util.Loader;
 
 public class ObjLoader {
+    private ObjLoader() {}
 
     public static RawModel loadObjModel(String filename, Loader loader) throws FileNotFoundException {
         if (filename == null || loader == null) {
