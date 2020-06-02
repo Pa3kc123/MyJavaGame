@@ -2,9 +2,9 @@ package sk.pa3kc.shaders;
 
 import sk.pa3kc.entities.Camera;
 import sk.pa3kc.entities.Light;
-import sk.pa3kc.pojo.matrix.Matrix4f;
-import sk.pa3kc.pojo.matrix.Vector3f;
-import sk.pa3kc.util.MatrixMath;
+import sk.pa3kc.mylibrary.matrix.math.MatrixMath;
+import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f;
+import sk.pa3kc.mylibrary.matrix.pojo.Vector3f;
 
 public class StaticShaderProgram extends ShaderProgram {
     public StaticShaderProgram(VertexShader vs, FragmentShader fs) {
@@ -34,7 +34,7 @@ public class StaticShaderProgram extends ShaderProgram {
     }
 
     public void loadViewMatrix(Camera camera) {
-        final Matrix4f matrix = MatrixMath.createViewMatrix(camera);
+        final Matrix4f matrix = MatrixMath.createViewMatrix(camera.getPosition(), camera.getPitch(), camera.getYaw(), camera.getRoll());
         super.loadMatrix(UniformLocation.VIEW_MATRIX.location, matrix);
     }
 

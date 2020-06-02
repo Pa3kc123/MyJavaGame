@@ -11,9 +11,7 @@
             "mainClass": "sk.pa3kc.App",
             "projectName": "myGame",
             "cwd": "${workspaceFolder}/target/classes",
-            "args": [
-                "${workspaceFolder}/assets/cube.obj"
-            ]
+            "args": "${workspaceFolder}/assets/cube.obj"
         }
     ]
 }

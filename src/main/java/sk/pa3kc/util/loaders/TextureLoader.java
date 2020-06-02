@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import sk.pa3kc.mylibrary.util.StringUtils;
+import sk.pa3kc.mylibrary.utils.StringUtils;
 import sk.pa3kc.pojo.Texture;
 
 public class TextureLoader implements AutoCloseable {

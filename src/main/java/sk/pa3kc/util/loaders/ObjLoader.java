@@ -7,8 +7,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 import sk.pa3kc.pojo.RawModel;
-import sk.pa3kc.pojo.matrix.Vector2f;
-import sk.pa3kc.pojo.matrix.Vector3f;
+import sk.pa3kc.mylibrary.matrix.pojo.Vector2f;
+import sk.pa3kc.mylibrary.matrix.pojo.Vector3f;
 import sk.pa3kc.util.Loader;
 
 public class ObjLoader {

@@ -12,7 +12,8 @@ import sk.pa3kc.App;
 import sk.pa3kc.entities.Entity;
 import sk.pa3kc.pojo.RawModel;
 import sk.pa3kc.pojo.TexturedModel;
-import sk.pa3kc.pojo.matrix.Matrix4f;
+import sk.pa3kc.mylibrary.matrix.math.MatrixMath;
+import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.Arrays;

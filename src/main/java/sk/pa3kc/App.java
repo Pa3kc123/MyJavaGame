@@ -12,8 +12,8 @@ import sk.pa3kc.entities.Light;
 import sk.pa3kc.pojo.RawModel;
 import sk.pa3kc.pojo.Texture;
 import sk.pa3kc.pojo.TexturedModel;
-import sk.pa3kc.pojo.matrix.Matrix4f;
-import sk.pa3kc.pojo.matrix.Vector3f;
+import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f;
+import sk.pa3kc.mylibrary.matrix.pojo.Vector3f;
 import sk.pa3kc.shaders.FragmentShader;
 import sk.pa3kc.shaders.StaticShaderProgram;
 import sk.pa3kc.shaders.VertexShader;
@@ -80,7 +80,7 @@ public class App {
         App.FRAGMENT_SHADER = new FragmentShader(new File(PATH_SHADERS_FRAGMENT, "1.mfs"));
         App.SHADER_PROGRAM = new StaticShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
 
-        final Matrix4f projectionMatrix = Matrix4f.projectionMatrix();
+        final Matrix4f projectionMatrix = Matrix4f.projectionMatrix(WINDOW_WIDTH, WINDOW_HEIGHT, FOV, NEAR_PLANE, FAR_PLANE);
         App.SHADER_PROGRAM.start();
         App.SHADER_PROGRAM.loadProjectionMatrix(projectionMatrix);
         App.SHADER_PROGRAM.stop();

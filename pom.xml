@@ -96,9 +96,14 @@
 			<classifier>${lwjgl.natives}</classifier>
 		</dependency>
     <dependency>
-      <groupId>sk.pa3kc</groupId>
-      <artifactId>mylibrary</artifactId>
-      <version>1.5</version>
+      <groupId>sk.pa3kc.mylibrary</groupId>
+      <artifactId>utils</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>sk.pa3kc.mylibrary</groupId>
+      <artifactId>matrix-math</artifactId>
+      <version>1.0</version>
     </dependency>
 	</dependencies>
 </project>

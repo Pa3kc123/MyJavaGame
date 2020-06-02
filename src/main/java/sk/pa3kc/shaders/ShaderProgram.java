@@ -6,7 +6,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import sk.pa3kc.pojo.matrix.Matrix4f;
+import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f;
 
 public abstract class ShaderProgram implements AutoCloseable {
     private static FloatBuffer buffer = BufferUtils.createFloatBuffer(16); // 4x4 matrix

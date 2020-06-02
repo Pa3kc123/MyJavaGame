@@ -3,7 +3,7 @@ package sk.pa3kc.entities;
 import org.lwjgl.glfw.GLFW;
 
 import sk.pa3kc.App;
-import sk.pa3kc.pojo.matrix.Vector3f;
+import sk.pa3kc.mylibrary.matrix.pojo.Vector3f;
 
 public class Camera {
     private Vector3f position = new Vector3f(0f, 0f, 0f);

@@ -1,6 +1,6 @@
 package sk.pa3kc.entities;
 
-import sk.pa3kc.pojo.matrix.Vector3f;
+import sk.pa3kc.mylibrary.matrix.pojo.Vector3f;
 
 public class Light {
     private Vector3f position;
