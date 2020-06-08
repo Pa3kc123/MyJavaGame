@@ -14,13 +14,14 @@ import sk.pa3kc.pojo.Texture;
 import sk.pa3kc.pojo.TexturedModel;
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f;
 import sk.pa3kc.mylibrary.matrix.pojo.Vector3f;
+import sk.pa3kc.mylibrary.obj.ObjLoader;
+import sk.pa3kc.mylibrary.obj.ObjObject;
 import sk.pa3kc.shaders.FragmentShader;
 import sk.pa3kc.shaders.StaticShaderProgram;
 import sk.pa3kc.shaders.VertexShader;
 import sk.pa3kc.ui.GLWindow;
 import sk.pa3kc.ui.calls.KeyCallback;
 import sk.pa3kc.util.Loader;
-import sk.pa3kc.util.loaders.ObjLoader;
 import sk.pa3kc.util.loaders.TextureLoader;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -86,8 +87,15 @@ public class App {
         App.SHADER_PROGRAM.stop();
 
         RawModel model = null;
+        ObjObject object = null;
         try {
-            model = ObjLoader.loadObjModel(args[0], App.LOADER);
+            object = ObjLoader.loadObjModel(args[0]);
+            model = App.LOADER.loadModelToVAO(
+                object.getVerticies(),
+                object.getVertexTextures(),
+                object.getVertexNormals(),
+                object.getFaces()
+            );
         } catch (Throwable ex) {
             ex.printStackTrace();
         }

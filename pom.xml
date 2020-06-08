@@ -94,7 +94,8 @@
 			<groupId>org.lwjgl</groupId>
 			<artifactId>lwjgl-opengl</artifactId>
 			<classifier>${lwjgl.natives}</classifier>
-		</dependency>
+    </dependency>
+
     <dependency>
       <groupId>sk.pa3kc.mylibrary</groupId>
       <artifactId>utils</artifactId>
@@ -103,6 +104,11 @@
     <dependency>
       <groupId>sk.pa3kc.mylibrary</groupId>
       <artifactId>matrix-math</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>sk.pa3kc.mylibrary</groupId>
+      <artifactId>obj-loader</artifactId>
       <version>1.0</version>
     </dependency>
 	</dependencies>
