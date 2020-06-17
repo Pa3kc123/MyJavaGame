@@ -67,7 +67,7 @@ enum UniformLocation {
     LIGHT_POSITION("lightPosition"),
     LIGHT_COLOR("lightColor");
 
-    public int location;
+    int location;
     public final String name;
     private UniformLocation(String name) {
         this.name = name;

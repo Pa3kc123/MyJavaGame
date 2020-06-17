@@ -5,6 +5,8 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import sk.pa3kc.entities.Camera;
 import sk.pa3kc.entities.Entity;
@@ -36,9 +38,6 @@ public class App {
     public static final float NEAR_PLANE = 0.1f;
     public static final float FAR_PLANE = 1000f;
 
-    public static int WINDOW_WIDTH;
-    public static int WINDOW_HEIGHT;
-
     public static final Loader LOADER = new Loader();
     public static final TextureLoader TEXTURE_LOADER = new TextureLoader();
     public static final Camera CAMERA = new Camera();
@@ -51,18 +50,15 @@ public class App {
     public static FragmentShader FRAGMENT_SHADER;
     public static StaticShaderProgram SHADER_PROGRAM;
 
-    public int textureIndex = 0;
+    // public int textureIndex = 0;
 
     public final GLWindow window;
 
-    private App(String... args) {
+    private App(String[] args) {
         final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         final GraphicsDevice screen = env.getDefaultScreenDevice();
         final GraphicsConfiguration config = screen.getDefaultConfiguration();
         final Rectangle bounds = config.getBounds();
-
-        App.WINDOW_WIDTH = bounds.width;
-        App.WINDOW_HEIGHT = bounds.height;
 
         this.window = new GLWindow(bounds.width, bounds.height, "My Game") {
             @Override
@@ -81,7 +77,7 @@ public class App {
         App.FRAGMENT_SHADER = new FragmentShader(new File(PATH_SHADERS_FRAGMENT, "1.mfs"));
         App.SHADER_PROGRAM = new StaticShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
 
-        final Matrix4f projectionMatrix = Matrix4f.projectionMatrix(WINDOW_WIDTH, WINDOW_HEIGHT, FOV, NEAR_PLANE, FAR_PLANE);
+        final Matrix4f projectionMatrix = Matrix4f.projectionMatrix(bounds.width, bounds.height, FOV, NEAR_PLANE, FAR_PLANE);
         App.SHADER_PROGRAM.start();
         App.SHADER_PROGRAM.loadProjectionMatrix(projectionMatrix);
         App.SHADER_PROGRAM.stop();
@@ -90,14 +86,14 @@ public class App {
         ObjObject object = null;
         try {
             object = ObjLoader.loadObjModel(args[0]);
-            model = App.LOADER.loadModelToVAO(
-                object.getVerticies(),
-                object.getVertexTextures(),
-                object.getVertexNormals(),
-                object.getFaces()
-            );
+            // model = App.LOADER.loadModelToVAO(
+            //     object.getVerticies(),
+            //     object.getVertexTextures(),
+            //     object.getVertexNormals(),
+            //     object.getFaces()
+            // );
         } catch (Throwable ex) {
-            ex.printStackTrace();
+            Logger.getGlobal().log(Level.SEVERE, "Exception occured while loading model to VAO", ex);
         }
         final Texture texture = App.TEXTURE_LOADER.loadBlockTexture("crafting_table_top.png");
 
@@ -113,6 +109,7 @@ public class App {
     }
 
     public static void main(String[] args) {
+        if (args.length == 0) return;
         new App(args);
     }
 }

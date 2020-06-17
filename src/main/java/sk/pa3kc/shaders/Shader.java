@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -26,7 +29,9 @@ public abstract class Shader implements AutoCloseable {
     }
 
     protected void loadShader(File file, Type type) throws FileNotFoundException {
-        if (file == null || !file.exists()) {
+        Objects.requireNonNull(file);
+
+        if (!file.exists()) {
             throw new FileNotFoundException(file.getPath() + " does not exists");
         }
 
@@ -39,7 +44,7 @@ public abstract class Shader implements AutoCloseable {
                 builder.append(line).append('\n');
             }
         } catch (Throwable ex) {
-            ex.printStackTrace();
+            Logger.getGlobal().log(Level.SEVERE, "Exception occured while reading shader file", ex);
             System.exit(-1);
         }
 
