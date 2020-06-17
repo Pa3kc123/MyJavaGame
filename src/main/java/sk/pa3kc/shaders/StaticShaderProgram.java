@@ -14,14 +14,14 @@ public class StaticShaderProgram extends ShaderProgram {
     @Override
     public void bindAttributes() {
         for (final Attribute attr : Attribute.values()) {
-            super.bindAttribute(attr.index, attr.name);
+            super.bindAttribute(attr.index, attr.attributeName);
         }
     }
 
     @Override
     protected void getAllUniformLocations() {
         for (final UniformLocation ul : UniformLocation.values()) {
-            ul.location = super.getUniformLocation(ul.name);
+            ul.location = super.getUniformLocation(ul.uniformName);
         }
     }
 
@@ -53,10 +53,10 @@ enum Attribute {
     NORMAL(2, "normal");
 
     public final int index;
-    public final String name;
-    private Attribute(int index, String name) {
+    public final String attributeName;
+    private Attribute(int index, String attributeName) {
         this.index = index;
-        this.name = name;
+        this.attributeName = attributeName;
     }
 }
 
@@ -68,8 +68,8 @@ enum UniformLocation {
     LIGHT_COLOR("lightColor");
 
     int location;
-    public final String name;
-    private UniformLocation(String name) {
-        this.name = name;
+    public final String uniformName;
+    private UniformLocation(String uniformName) {
+        this.uniformName = uniformName;
     }
 }

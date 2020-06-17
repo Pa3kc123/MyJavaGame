@@ -43,18 +43,17 @@ public abstract class Shader implements AutoCloseable {
             while ((line = br.readLine()) != null) {
                 builder.append(line).append('\n');
             }
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             Logger.getGlobal().log(Level.SEVERE, "Exception occured while reading shader file", ex);
             System.exit(-1);
         }
 
         this.shaderId = GL20.glCreateShader(type.index);
-        GL20.glShaderSource(shaderId, builder.toString());
-        GL20.glCompileShader(shaderId);
+        GL20.glShaderSource(this.shaderId, builder.toString());
+        GL20.glCompileShader(this.shaderId);
 
-        if (GL20.glGetShaderi(shaderId, GL20.GL_COMPILE_STATUS) != GL11.GL_TRUE) {
-            System.err.println(GL20.glGetShaderInfoLog(shaderId));
-            System.err.println("Could not compile shader");
+        if (GL20.glGetShaderi(this.shaderId, GL20.GL_COMPILE_STATUS) != GL11.GL_TRUE) {
+            Logger.getGlobal().log(Level.SEVERE, "Error occured while compiling shader", GL20.glGetShaderInfoLog(this.shaderId));
             System.exit(-1);
         }
     };

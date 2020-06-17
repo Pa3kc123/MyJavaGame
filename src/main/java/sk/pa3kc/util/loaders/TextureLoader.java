@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,14 +29,12 @@ public class TextureLoader implements AutoCloseable {
 
         final InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream(path);
 
-        if (is == null) {
-            throw new RuntimeException(StringUtils.build("Unable to open ", path));
-        }
+        Objects.requireNonNull(is, "Unable to open " + path);
 
         final BufferedImage bufferedImage;
         try {
             bufferedImage = ImageIO.read(is);
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             Logger.getGlobal().log(Level.SEVERE, "Exception occured while reading through texture file", ex);
             return null;
         }

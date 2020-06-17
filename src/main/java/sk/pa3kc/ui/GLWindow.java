@@ -3,8 +3,8 @@ package sk.pa3kc.ui;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.system.Callback;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.glfw.GLFWWindowCloseCallbackI;
@@ -99,10 +99,10 @@ public class GLWindow implements AutoCloseable {
     @Override
     public void close() {
         this.uiThread.stop();
-        GLFWErrorCallback.free(this.errCallback.address());
-        GLFWWindowCloseCallback.free(this.windowCloseCallback.address());
+        Callback.free(this.errCallback.address());
+        Callback.free(this.windowCloseCallback.address());
         if (this.keyCallback != null) {
-            GLFWKeyCallback.free(this.keyCallback.address());
+            Callback.free(this.keyCallback.address());
         }
         glfwDestroyWindow(this.windowId);
         glfwTerminate();

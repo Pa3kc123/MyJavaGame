@@ -50,8 +50,6 @@ public class App {
     public static FragmentShader FRAGMENT_SHADER;
     public static StaticShaderProgram SHADER_PROGRAM;
 
-    // public int textureIndex = 0;
-
     public final GLWindow window;
 
     private App(String[] args) {
@@ -92,7 +90,7 @@ public class App {
             //     object.getVertexNormals(),
             //     object.getFaces()
             // );
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             Logger.getGlobal().log(Level.SEVERE, "Exception occured while loading model to VAO", ex);
         }
         final Texture texture = App.TEXTURE_LOADER.loadBlockTexture("crafting_table_top.png");

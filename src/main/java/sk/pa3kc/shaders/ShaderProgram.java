@@ -1,6 +1,8 @@
 package sk.pa3kc.shaders;
 
 import java.nio.FloatBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -28,16 +30,14 @@ public abstract class ShaderProgram implements AutoCloseable {
         GL20.glLinkProgram(this.programId);
 
         if (GL20.glGetProgrami(this.programId, GL20.GL_LINK_STATUS) != GL11.GL_TRUE) {
-            System.err.println(GL20.glGetProgramInfoLog(this.programId));
-            System.err.println("Could not compile shader program");
+            Logger.getGlobal().log(Level.SEVERE, "Error occured while linking program", GL20.glGetProgramInfoLog(this.programId));
             System.exit(-1);
         }
 
         GL20.glValidateProgram(this.programId);
 
         if (GL20.glGetProgrami(this.programId, GL20.GL_VALIDATE_STATUS) != GL11.GL_TRUE) {
-            System.err.println(GL20.glGetProgramInfoLog(this.programId));
-            System.err.println("Validation was not successful for shader program");
+            Logger.getGlobal().log(Level.SEVERE, "Error occured while validating program", GL20.glGetProgramInfoLog(this.programId));
             System.exit(-1);
         }
 
