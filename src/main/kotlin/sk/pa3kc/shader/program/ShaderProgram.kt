@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL20
 
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
 import sk.pa3kc.poko.Shader
+import java.io.Closeable
 
 @JvmField val buffer: FloatBuffer = BufferUtils.createFloatBuffer(16) // 4x4 matrix
 
@@ -16,7 +17,7 @@ abstract class ShaderProgram(
         private val vs: Shader,
         private val fs: Shader
 ) : AutoCloseable {
-    private val programId: Int
+    val programId: Int
 
     init {
         this.programId = GL20.glCreateProgram().also {
