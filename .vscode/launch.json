@@ -6,7 +6,7 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Debug (Launch)-App<myGame>",
+            "name": "Debug (myGame)",
             "request": "launch",
             "mainClass": "sk.pa3kc.App",
             "projectName": "myGame",

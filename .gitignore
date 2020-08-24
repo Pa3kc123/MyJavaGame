@@ -4,3 +4,5 @@
 .factorypath
 target
 src/main/resources/textures
+.idea
+*.iml
