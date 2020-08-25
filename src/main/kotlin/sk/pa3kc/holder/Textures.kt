@@ -3,6 +3,7 @@ package sk.pa3kc.holder
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
@@ -19,12 +20,12 @@ object Textures : GLObjectCollection<Texture>() {
 }
 
 @Throws(IOException::class, IllegalStateException::class)
-fun loadTexture(name: String): Texture {
-    if (name.isBlank()) {
+fun loadTexture(path: String): Texture {
+    if (path.isBlank()) {
         throw IllegalArgumentException("name cannot be blank")
     }
 
-    return loadTexture(File(name))
+    return loadTexture(File(path))
 }
 
 @Throws(IOException::class)
@@ -48,12 +49,14 @@ fun loadTexture(file: File): Texture {
 
     val rawPixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width)
     val pixelBuffer = BufferUtils.createByteBuffer(width * height * 4).apply {
+        fun ByteBuffer.put(value: Int) = this.put(value.toByte())
+
         rawPixels.forEach {
             //? BufferedImage returns ARGB, but OpenGL wants RGBA
-            put(it.shr(16).and(0xFF).toByte())   // R
-            put(it.shr(8).and(0xFF).toByte())    // G
-            put(it.shr(0).and(0xFF).toByte())    // B
-            put(it.shr(24).and(0xFF).toByte())   // A
+            put(it shr 16 and 0xFF)   // R
+            put(it shr 8 and 0xFF)    // G
+            put(it shr 0 and 0xFF)    // B
+            put(it shr 24 and 0xFF)   // A
         }
 
         flip()

@@ -8,17 +8,3 @@ object Shaders : GLObjectCollection<Shader>() {
         it.close()
     }
 }
-
-fun interface Test {
-    fun run()
-}
-
-fun test() {
-    Test {
-        println()
-    }
-
-    Runnable {
-
-    }
-}
