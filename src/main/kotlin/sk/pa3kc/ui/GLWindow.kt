@@ -20,6 +20,7 @@ open class GLWindow : AutoCloseable {
     private val capabilities: GLCapabilities
     private val errCallback: GLFWErrorCallbackI
     private val windowCloseCallback: GLFWWindowCloseCallbackI
+    private val closeBlock: () -> Unit
 
     val windowId: Long
     var keyCallback: GLFWKeyCallbackI? = null
@@ -29,7 +30,9 @@ open class GLWindow : AutoCloseable {
         }
     val uiThread: UIThread
 
-    constructor(width: Int, height: Int, title: CharSequence) {
+    constructor(width: Int, height: Int, title: CharSequence, closeBlock: () -> Unit) {
+        this.closeBlock = closeBlock
+
         // Create callbacks
         this.errCallback = GLFWErrorCallback.createPrint(System.err)
         this.windowCloseCallback = GLFWWindowCloseCallback.create() {
@@ -91,6 +94,7 @@ open class GLWindow : AutoCloseable {
     }
 
     override fun close() {
+        this.closeBlock()
         this.uiThread.stop()
         GLFWErrorCallback.free(this.errCallback.address())
         GLFWWindowCloseCallback.free(this.windowCloseCallback.address())
@@ -99,17 +103,5 @@ open class GLWindow : AutoCloseable {
         }
         glfwDestroyWindow(this.windowId)
         glfwTerminate()
-    }
-}
-
-/**
- * Creates new instance of GLWindow with closeBlock as it's close fun
- *
- * @param closeBlock Function to run on when window is about to close. GLWindow#close() is called after this fun
- */
-fun GLWindow(width: Int, height: Int, title: CharSequence, closeBlock: () -> Unit) = object : GLWindow(width, height, title) {
-    override fun close() {
-        closeBlock()
-        super.close()
     }
 }

@@ -2,11 +2,12 @@ package sk.pa3kc
 
 import java.awt.GraphicsEnvironment
 import java.io.File
+import java.lang.System.exit
+import kotlin.system.exitProcess
 
 import sk.pa3kc.entity.Camera
 import sk.pa3kc.entity.Entity
 import sk.pa3kc.entity.Light
-import sk.pa3kc.poko.TexturedModel
 import sk.pa3kc.shader.program.StaticShaderProgram
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
 import sk.pa3kc.mylibrary.matrix.pojo.Vector3f
@@ -16,10 +17,9 @@ import sk.pa3kc.ui.call.KeyCallback
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.system.MemoryUtil.NULL
 import sk.pa3kc.holder.*
-import sk.pa3kc.mylibrary.obj.ObjLoader
-import sk.pa3kc.mylibrary.obj.ObjObject
-import sk.pa3kc.poko.RawModel
-import sk.pa3kc.poko.Shader
+import sk.pa3kc.poko.*
+import sk.pa3kc.util.ObjModel
+import sk.pa3kc.util.loadObjModel
 
 const val PATH_SHADERS_VERTEX = "shaders/vertex"
 const val PATH_SHADERS_FRAGMENT = "shaders/fragment"
@@ -55,8 +55,8 @@ class App(args: Array<out String>) {
         }
 
         this.window = GLWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "My Game") {
-            VAOS.close()
-            VBOS.close()
+            VertexArrayObjects.close()
+            VertexBufferObjects.close()
             SHADER_PROGRAM.close()
         }
 
@@ -74,18 +74,26 @@ class App(args: Array<out String>) {
         SHADER_PROGRAM.stop()
 
         val model: RawModel
-        val obj: ObjObject
+        val obj: ObjModel
+
         try {
-            obj = ObjLoader.loadObjModel(args[0])
-            model = loadModelToVAO(
-                obj.verticies,
-                obj.vertexTextures,
-                obj.vertexNormals,
-                obj.faces
-             )
+            obj = loadObjModel(args[0])!!
         } catch (ex: Exception) {
             ex.printStackTrace()
+
+            glfwMakeContextCurrent(NULL)
+            this.window.close()
+
+            exitProcess(0)
         }
+
+        model = loadModelToVAO(
+            obj.vertices,
+            obj.textureCoords,
+            obj.normals,
+            obj.indices
+        )
+
         val texture = loadTexture(File("crafting_table_top.png"))
 
         glfwMakeContextCurrent(NULL)

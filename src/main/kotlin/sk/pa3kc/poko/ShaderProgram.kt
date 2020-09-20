@@ -3,10 +3,11 @@ package sk.pa3kc.poko
 import org.lwjgl.opengl.GL20
 
 data class ShaderProgram(
-    private val vertexShaders: ArrayList<Shader> = ArrayList(),
-    private val fragmentShaders: ArrayList<Shader> = ArrayList(),
     val programId: Int
 ) : AutoCloseable {
+    private val vertexShaders = ArrayList<VertexShader>()
+    private val fragmentShaders = ArrayList<FragmentShader>()
+
     var isRunning = false
         set(value) {
             if (value == field) return

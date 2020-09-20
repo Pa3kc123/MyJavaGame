@@ -10,6 +10,8 @@
   <name>myGame</name>
 
   <properties>
+    <downloadSources>true</downloadSources>
+    <downloadJavadoc>true</downloadJavadoc>
     <source>1.8</source>
     <target>1.8</target>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -17,7 +19,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lwjgl.version>3.2.3</lwjgl.version>
     <lwjgl.natives>natives-linux</lwjgl.natives>
-    <kotlin.version>1.4.0</kotlin.version>
+    <kotlin.version>1.4.10</kotlin.version>
   </properties>
 
   <build>
@@ -119,11 +121,6 @@
     <dependency>
       <groupId>sk.pa3kc.mylibrary</groupId>
       <artifactId>matrix-math</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>sk.pa3kc.mylibrary</groupId>
-      <artifactId>obj-loader</artifactId>
       <version>1.0</version>
     </dependency>
   </dependencies>

@@ -12,9 +12,7 @@ object ShaderPrograms : ArrayList<ShaderProgram>(), AutoCloseable {
         GL20.glUseProgram(shaderProgram.programId)
     }
 
-    override fun close() {
-        super.forEach {
-            it.close()
-        }
+    override fun close() = super.forEach {
+        it.close()
     }
 }

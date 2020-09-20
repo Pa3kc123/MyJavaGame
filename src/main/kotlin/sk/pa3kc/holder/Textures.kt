@@ -8,13 +8,12 @@ import javax.imageio.ImageIO
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import sk.pa3kc.poko.Texture
-import sk.pa3kc.util.GLObjectCollection
 
 private const val TEXTURES: String = "./textures"
 private const val BLOCKS: String = "$TEXTURES/blocks"
 
-object Textures : GLObjectCollection<Texture>() {
-    override fun cleanup() = super.forEach {
+object Textures : ArrayList<Texture>(), AutoCloseable {
+    override fun close() = super.forEach {
         it.close()
     }
 }
