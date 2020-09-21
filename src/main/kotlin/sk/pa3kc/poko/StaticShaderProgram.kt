@@ -7,14 +7,12 @@ import sk.pa3kc.entity.Light
 import sk.pa3kc.mylibrary.matrix.math.MatrixMath
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
 
-class StaticShaderProgram(
-    programId: Int,
-    vertexShaders: Array<VertexShader>,
-    fragmentShaders: Array<FragmentShader>
+object InvalidStaticShaderProgram : StaticShaderProgram(-1)
+
+open class StaticShaderProgram(
+    programId: Int
 ) : ShaderProgram(
-    programId,
-    vertexShaders,
-    fragmentShaders
+    programId
 ) {
     fun loadTransformationMatrix(matrix: Matrix4f) {
         super.loadMatrix(UniformLocation.TRANSFORMATION_MATRIX.location, matrix)
@@ -47,11 +45,10 @@ class StaticShaderProgram(
 
         override fun build(): StaticShaderProgram {
             val programId = GL20.glCreateProgram().also {
-                for (vs in super.vertexShaders) {
-                    GL20.glAttachShader(it, vs.shaderId)
-                }
-                for (fs in super.fragmentShaders) {
-                    GL20.glAttachShader(it, fs.shaderId)
+                val shaders = super.vertexShaders + super.fragmentShaders
+
+                for (shader in shaders) {
+                    GL20.glAttachShader(it, shader.shaderId)
                 }
 
                 for (attr in Attribute.values()) {
@@ -63,6 +60,8 @@ class StaticShaderProgram(
                 if (GL20.glGetProgrami(it, GL20.GL_LINK_STATUS) != GL11.GL_TRUE) {
                     System.err.println(GL20.glGetProgramInfoLog(it))
                     System.err.println("Could not compile shader program")
+                    GL20.glDeleteProgram(it)
+                    return InvalidStaticShaderProgram
                 }
 
                 GL20.glValidateProgram(it)
@@ -70,18 +69,21 @@ class StaticShaderProgram(
                 if (GL20.glGetProgrami(it, GL20.GL_VALIDATE_STATUS) != GL11.GL_TRUE) {
                     System.err.println(GL20.glGetProgramInfoLog(it))
                     System.err.println("Validation was not successful for shader program")
+                    GL20.glDeleteProgram(it)
+                    return InvalidStaticShaderProgram
                 }
 
                 for (ul in UniformLocation.values()) {
                     ul.location = GL20.glGetUniformLocation(it, ul.ulName)
                 }
+
+                for (shader in shaders) {
+                    GL20.glDetachShader(it, shader.shaderId)
+                    GL20.glDeleteShader(shader.shaderId)
+                }
             }
 
-            return StaticShaderProgram(
-                programId,
-                super.vertexShaders.toTypedArray(),
-                super.fragmentShaders.toTypedArray()
-            )
+            return StaticShaderProgram(programId)
         }
     }
 }

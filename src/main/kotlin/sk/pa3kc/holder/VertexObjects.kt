@@ -27,6 +27,7 @@ object VertexBufferObjects : ArrayList<Int>(), AutoCloseable {
 
 fun loadModelToVAO(vertices: FloatArray, textCoords: FloatArray, normals: FloatArray, indices: IntArray): RawModel {
     val vaoId = createVAO()
+    bindVAO(vaoId)
     bindIndicesBuffer(indices)
     storeDataInAttrList(VERTICES, 3, vertices)
     storeDataInAttrList(TEXTURE_COORDS, 2, textCoords)
@@ -35,14 +36,10 @@ fun loadModelToVAO(vertices: FloatArray, textCoords: FloatArray, normals: FloatA
     return RawModel(vaoId, vertices.size)
 }
 
-private fun createVAO(): Int = GL30.glGenVertexArrays().also { vaoId ->
-    VertexArrayObjects.add(vaoId)
-    GL30.glBindVertexArray(vaoId)
-}
+private fun createVAO(): Int = GL30.glGenVertexArrays().also { VertexArrayObjects.add(it) }
+private fun createVBO(): Int = GL15.glGenBuffers().also { VertexBufferObjects.add(it) }
 
-private fun createVBO(): Int = GL15.glGenBuffers().also { vboId ->
-    VertexBufferObjects.add(vboId)
-}
+private fun bindVAO(vaoId: Int) = GL30.glBindVertexArray(vaoId)
 
 private fun storeDataInAttrList(attrId: Int, size: Int, attrData: FloatArray) {
     val vboId = createVBO()

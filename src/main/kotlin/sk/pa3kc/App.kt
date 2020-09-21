@@ -1,7 +1,6 @@
 package sk.pa3kc
 
 import java.awt.GraphicsEnvironment
-import java.io.File
 import kotlin.system.exitProcess
 
 import sk.pa3kc.entity.Camera
@@ -16,6 +15,7 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.system.MemoryUtil.NULL
 import sk.pa3kc.holder.*
 import sk.pa3kc.poko.*
+import sk.pa3kc.ui.OutputLog
 import sk.pa3kc.util.ObjModel
 import sk.pa3kc.util.loadObjModel
 
@@ -60,13 +60,20 @@ class App(args: Array<out String>) {
 
         glfwMakeContextCurrent(this.window.windowId)
 
-        SHADER_PROGRAM = newStaticShaderProgram {
+        val shaderProgram = newStaticShaderProgram {
             addVertexShaders(
                 newVertexShaderFromRes("${PATH_SHADERS_VERTEX}/1.mvs")
             )
             addFragmentShaders(
                 newFragmentShaderFromRes("${PATH_SHADERS_FRAGMENT}/1.mfs")
             )
+        }
+
+        if (shaderProgram is InvalidStaticShaderProgram) {
+            glfwMakeContextCurrent(NULL)
+            this.window.close()
+        } else {
+            SHADER_PROGRAM = shaderProgram
         }
 
         val projectionMatrix = Matrix4f.projectionMatrix(WINDOW_WIDTH, WINDOW_HEIGHT, FOV, NEAR_PLANE, FAR_PLANE)
@@ -110,5 +117,6 @@ class App(args: Array<out String>) {
 }
 
 fun main(args: Array<out String>) {
-    App(args)
+    OutputLog()
+//    App(args)
 }

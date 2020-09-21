@@ -9,9 +9,7 @@ import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
 @JvmField val buffer: FloatBuffer = BufferUtils.createFloatBuffer(16) // 4x4 matrix
 
 abstract class ShaderProgram(
-    val programId: Int,
-    private val vertexShaders: Array<VertexShader>,
-    private val fragmentShaders: Array<FragmentShader>
+    val programId: Int
 ) : AutoCloseable {
 //    protected fun bindAttribute(attr: Int, varName: String) {
 //        GL20.glBindAttribLocation(this.programId, attr, varName)
@@ -40,19 +38,7 @@ abstract class ShaderProgram(
         GL20.glUniformMatrix4fv(location, false, buffer)
     }
 
-    override fun close() {
-        vertexShaders.forEach {
-            GL20.glDetachShader(programId, it.shaderId)
-            it.close()
-        }
-
-        fragmentShaders.forEach {
-            GL20.glDetachShader(programId, it.shaderId)
-            it.close()
-        }
-
-        GL20.glDeleteProgram(this.programId)
-    }
+    override fun close() = GL20.glDeleteProgram(this.programId)
 
     abstract class Builder<T : ShaderProgram> {
         protected val vertexShaders = ArrayList<VertexShader>()
