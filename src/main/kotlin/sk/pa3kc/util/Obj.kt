@@ -3,16 +3,19 @@ package sk.pa3kc.util
 import java.io.*
 import java.text.ParseException
 
-class ObjModel(
+object EmptyObjModel : ObjModel(
+    FloatArray(0),
+    FloatArray(0),
+    FloatArray(0),
+    IntArray(0)
+)
+
+open class ObjModel(
     val vertices: FloatArray,
     val textureCoords: FloatArray,
     val normals: FloatArray,
     val indices: IntArray
-) {
-    companion object {
-        fun empty() = ObjModel(FloatArray(0), FloatArray(0), FloatArray(0), IntArray(0))
-    }
-}
+)
 
 @Throws(IOException::class, ParseException::class)
 fun loadObjModel(filename: String): ObjModel {
@@ -44,7 +47,7 @@ fun loadObjModel(filename: String): ObjModel {
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        return ObjModel.empty()
+        return EmptyObjModel
     }
 
     val textures = FloatArray(texturesRaw.size)

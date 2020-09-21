@@ -11,6 +11,7 @@ import sk.pa3kc.entity.Entity
 import sk.pa3kc.entity.move
 import sk.pa3kc.entity.rotate
 import sk.pa3kc.holder.NORMALS
+import sk.pa3kc.holder.ShaderPrograms
 import sk.pa3kc.holder.TEXTURE_COORDS
 import sk.pa3kc.holder.VERTICES
 import sk.pa3kc.mylibrary.matrix.math.MatrixMath
@@ -79,7 +80,7 @@ class UIThread(
             CAMERA.move()
             CAMERA.rotate()
 
-            SHADER_PROGRAM.start()
+            ShaderPrograms.useProgram(SHADER_PROGRAM)
 
             this.models.forEach { entity ->
                 val model = entity.model
@@ -114,7 +115,7 @@ class UIThread(
                 GL30.glBindVertexArray(0)
             }
 
-            SHADER_PROGRAM.stop()
+            ShaderPrograms.deactivatePrograms()
 
             glfwSwapBuffers(this.windowId)
         }

@@ -1,7 +1,6 @@
 package sk.pa3kc.ui
 
 import org.lwjgl.opengl.GL
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GLCapabilities
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWErrorCallbackI
@@ -16,11 +15,15 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.system.MemoryUtil.NULL
 
-open class GLWindow : AutoCloseable {
+open class GLWindow(
+    width: Int,
+    height: Int,
+    title: CharSequence,
+    private val closeBlock: () -> Unit
+) : AutoCloseable {
     private val capabilities: GLCapabilities
     private val errCallback: GLFWErrorCallbackI
     private val windowCloseCallback: GLFWWindowCloseCallbackI
-    private val closeBlock: () -> Unit
 
     val windowId: Long
     var keyCallback: GLFWKeyCallbackI? = null
@@ -30,12 +33,10 @@ open class GLWindow : AutoCloseable {
         }
     val uiThread: UIThread
 
-    constructor(width: Int, height: Int, title: CharSequence, closeBlock: () -> Unit) {
-        this.closeBlock = closeBlock
-
+    init {
         // Create callbacks
         this.errCallback = GLFWErrorCallback.createPrint(System.err)
-        this.windowCloseCallback = GLFWWindowCloseCallback.create() {
+        this.windowCloseCallback = GLFWWindowCloseCallback.create {
             this.close()
         }
 
@@ -82,7 +83,7 @@ open class GLWindow : AutoCloseable {
     }
 
     fun setBackgroundColor(r: Float, g: Float, b: Float) = this.setBackgroundColor(r, g, b, 1f)
-    fun setBackgroundColor(r: Float, g: Float, b: Float, a: Float) = GL11.glClearColor(r, g, b, a)
+    fun setBackgroundColor(r: Float, g: Float, b: Float, a: Float) = glClearColor(r, g, b, a)
 
     fun show() {
         glfwShowWindow(this.windowId)

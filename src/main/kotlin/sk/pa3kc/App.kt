@@ -2,13 +2,11 @@ package sk.pa3kc
 
 import java.awt.GraphicsEnvironment
 import java.io.File
-import java.lang.System.exit
 import kotlin.system.exitProcess
 
 import sk.pa3kc.entity.Camera
 import sk.pa3kc.entity.Entity
 import sk.pa3kc.entity.Light
-import sk.pa3kc.shader.program.StaticShaderProgram
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
 import sk.pa3kc.mylibrary.matrix.pojo.Vector3f
 import sk.pa3kc.ui.GLWindow
@@ -39,11 +37,9 @@ var WINDOW_HEIGHT = -1
 )
 
 lateinit var SHADER_PROGRAM: StaticShaderProgram
+@JvmField val CLASS_LOADER: ClassLoader = App::class.java.classLoader
 
 class App(args: Array<out String>) {
-    val VERTEX_SHADER: Shader
-    val FRAGMENT_SHADER: Shader
-
     var textureIndex = 0
 
     val window: GLWindow
@@ -64,20 +60,25 @@ class App(args: Array<out String>) {
 
         glfwMakeContextCurrent(this.window.windowId)
 
-        VERTEX_SHADER = loadVertexShader(File(PATH_SHADERS_VERTEX, "1.mvs"))
-        FRAGMENT_SHADER = loadFragmentShader(File(PATH_SHADERS_FRAGMENT, "1.mfs"))
-        SHADER_PROGRAM = StaticShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER)
+        SHADER_PROGRAM = newStaticShaderProgram {
+            addVertexShaders(
+                newVertexShaderFromRes("${PATH_SHADERS_VERTEX}/1.mvs")
+            )
+            addFragmentShaders(
+                newFragmentShaderFromRes("${PATH_SHADERS_FRAGMENT}/1.mfs")
+            )
+        }
 
         val projectionMatrix = Matrix4f.projectionMatrix(WINDOW_WIDTH, WINDOW_HEIGHT, FOV, NEAR_PLANE, FAR_PLANE)
-        SHADER_PROGRAM.start()
+        ShaderPrograms.useProgram(SHADER_PROGRAM)
         SHADER_PROGRAM.loadProjectionMatrix(projectionMatrix)
-        SHADER_PROGRAM.stop()
+        ShaderPrograms.deactivatePrograms()
 
         val model: RawModel
         val obj: ObjModel
 
         try {
-            obj = loadObjModel(args[0])!!
+            obj = loadObjModel(args[0])
         } catch (ex: Exception) {
             ex.printStackTrace()
 
@@ -94,7 +95,7 @@ class App(args: Array<out String>) {
             obj.indices
         )
 
-        val texture = loadTexture(File("crafting_table_top.png"))
+        val texture = loadTextureFromRes("crafting_table_top.png")
 
         glfwMakeContextCurrent(NULL)
 

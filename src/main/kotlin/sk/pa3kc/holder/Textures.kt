@@ -1,12 +1,12 @@
 package sk.pa3kc.holder
 
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
+import sk.pa3kc.CLASS_LOADER
 import sk.pa3kc.poko.Texture
 
 private const val TEXTURES: String = "./textures"
@@ -18,23 +18,10 @@ object Textures : ArrayList<Texture>(), AutoCloseable {
     }
 }
 
-@Throws(IOException::class, IllegalStateException::class)
-fun loadTexture(path: String): Texture {
-    if (path.isBlank()) {
-        throw IllegalArgumentException("name cannot be blank")
-    }
-
-    return loadTexture(File(path))
-}
-
 @Throws(IOException::class)
-fun loadTexture(file: File): Texture {
-    if (!file.exists()) {
-        throw FileNotFoundException("${file.path} was not found")
-    }
-
-    val path = "$BLOCKS/${file.path}"
-    val bufferedImage = ClassLoader.getSystemClassLoader().getResourceAsStream(path)?.use {
+fun loadTextureFromRes(mPath: String): Texture {
+    val path = "$BLOCKS/$mPath"
+    val bufferedImage = CLASS_LOADER.getResourceAsStream(path)?.use {
         try {
             ImageIO.read(it)
         } catch (e: Exception) {
