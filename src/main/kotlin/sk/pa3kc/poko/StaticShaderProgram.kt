@@ -36,11 +36,15 @@ open class StaticShaderProgram(
     }
 
     class Builder : ShaderProgram.Builder<StaticShaderProgram>() {
-        fun addVertexShaders(vararg vertexShaders: VertexShader) {
-            super.vertexShaders += vertexShaders
+        fun addVertexShaders(vararg paths: String) {
+            for (path in paths) {
+                super.vertexShaders += newVertexShaderFromRes(path)
+            }
         }
-        fun addFragmentShaders(vararg fragmentShader: FragmentShader) {
-            super.fragmentShaders += fragmentShader
+        fun addFragmentShaders(vararg paths: String) {
+            for (path in paths) {
+                super.fragmentShaders += newFragmentShaderFromRes(path)
+            }
         }
 
         override fun build(): StaticShaderProgram {

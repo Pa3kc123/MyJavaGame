@@ -61,12 +61,8 @@ class App(args: Array<out String>) {
         glfwMakeContextCurrent(this.window.windowId)
 
         val shaderProgram = newStaticShaderProgram {
-            addVertexShaders(
-                newVertexShaderFromRes("${PATH_SHADERS_VERTEX}/1.mvs")
-            )
-            addFragmentShaders(
-                newFragmentShaderFromRes("${PATH_SHADERS_FRAGMENT}/1.mfs")
-            )
+            addVertexShaders("${PATH_SHADERS_VERTEX}/1.mvs")
+            addFragmentShaders("${PATH_SHADERS_FRAGMENT}/1.mfs")
         }
 
         if (shaderProgram is InvalidStaticShaderProgram) {
