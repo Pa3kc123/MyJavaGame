@@ -18,6 +18,7 @@
     <lwjgl.version>3.2.3</lwjgl.version>
     <lwjgl.natives>natives-linux</lwjgl.natives>
     <kotlin.version>1.4.10</kotlin.version>
+    <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
   </properties>
 
   <build>
@@ -39,6 +40,29 @@
       </plugin>
 
       <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/resources</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>3.3.0</version>
@@ -52,7 +76,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>sk.pa3kc.App</mainClass>
+                  <mainClass>sk.pa3kc.AppKt</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>

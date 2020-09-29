@@ -12,12 +12,14 @@ import sk.pa3kc.ui.GLWindow
 import sk.pa3kc.ui.call.KeyCallback
 
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.opengl.GL20
 import org.lwjgl.system.MemoryUtil.NULL
 import sk.pa3kc.holder.*
 import sk.pa3kc.poko.*
 import sk.pa3kc.ui.OutputLog
 import sk.pa3kc.util.ObjModel
 import sk.pa3kc.util.loadObjModel
+import java.io.File
 
 const val PATH_SHADERS_VERTEX = "shaders/vertex"
 const val PATH_SHADERS_FRAGMENT = "shaders/fragment"
@@ -112,7 +114,41 @@ class App(args: Array<out String>) {
     }
 }
 
+@Throws(IllegalArgumentException::class)
+fun loadShaders(rootPath: String) {
+    fun File.existsAsDirectory(): File = when {
+        !this.exists() -> throw IllegalArgumentException("Directory does not exists")
+        !this.isDirectory -> throw IllegalArgumentException("${this.path} is not directory")
+        else -> this
+    }
+
+    File(rootPath).existsAsDirectory().also { root ->
+        newStaticShaderProgram {
+            addVertexShaders(
+                *File(root, "vertex").existsAsDirectory().let {
+                    it.list() as Array<String>? ?: throw IllegalStateException("Missing vertex shaders")
+                }
+            )
+
+            addFragmentShaders(
+                *File(root, "texture").existsAsDirectory().let {
+                    it.list() as Array<String>? ?: throw IllegalStateException("Missing fragment shaders")
+                }
+            )
+        }
+    }
+}
+
 fun main(args: Array<out String>) {
-    OutputLog()
+    OutputLog.isVisible = true
+
+    loadShaders("shaders")
+
+//    loadModels()
+
+//    loadTextures()
+
+//    loadSounds()
+
 //    App(args)
 }
