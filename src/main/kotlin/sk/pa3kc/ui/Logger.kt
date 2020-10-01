@@ -7,7 +7,7 @@ import javax.swing.*
 import javax.swing.text.StyleConstants
 import kotlin.system.exitProcess
 
-object OutputLog : JFrame() {
+object Logger : JFrame() {
     private val textPane = MyTextPane().apply {
         this.background = Color(0xD0D0D0)
     }
@@ -74,7 +74,7 @@ class MyTextPane : JTextPane() {
             LogLevel.WARNING -> Color.YELLOW
             LogLevel.ERROR -> Color.RED
             else -> {
-                System.err.println("How did we get here???")
+                Logger.loge("How did we get here???")
                 exitProcess(-1)
             }
         }

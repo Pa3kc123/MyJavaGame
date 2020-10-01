@@ -6,6 +6,7 @@ import sk.pa3kc.entity.Camera
 import sk.pa3kc.entity.Light
 import sk.pa3kc.mylibrary.matrix.math.MatrixMath
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
+import sk.pa3kc.ui.Logger
 
 object InvalidStaticShaderProgram : StaticShaderProgram(-1)
 
@@ -62,8 +63,8 @@ open class StaticShaderProgram(
                 GL20.glLinkProgram(it)
 
                 if (GL20.glGetProgrami(it, GL20.GL_LINK_STATUS) != GL11.GL_TRUE) {
-                    System.err.println(GL20.glGetProgramInfoLog(it))
-                    System.err.println("Could not compile shader program")
+                    Logger.loge(GL20.glGetProgramInfoLog(it))
+                    Logger.loge("Could not compile shader program")
                     GL20.glDeleteProgram(it)
                     return InvalidStaticShaderProgram
                 }
@@ -71,8 +72,8 @@ open class StaticShaderProgram(
                 GL20.glValidateProgram(it)
 
                 if (GL20.glGetProgrami(it, GL20.GL_VALIDATE_STATUS) != GL11.GL_TRUE) {
-                    System.err.println(GL20.glGetProgramInfoLog(it))
-                    System.err.println("Validation was not successful for shader program")
+                    Logger.loge(GL20.glGetProgramInfoLog(it))
+                    Logger.loge("Validation was not successful for shader program")
                     GL20.glDeleteProgram(it)
                     return InvalidStaticShaderProgram
                 }

@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL20
 import sk.pa3kc.CLASS_LOADER
 import java.io.FileInputStream
 import java.io.FileNotFoundException
+import sk.pa3kc.ui.Logger
 
 abstract class Shader(
     val shaderId: Int
@@ -66,7 +67,7 @@ private fun createShaderObject(shaderSource: String, type: Int): Int = GL20.glCr
     GL20.glCompileShader(it)
 
     if (GL20.glGetShaderi(it, GL20.GL_COMPILE_STATUS) != GL11.GL_TRUE) {
-        System.err.println(GL20.glGetShaderInfoLog(it))
+        Logger.loge(GL20.glGetShaderInfoLog(it))
         throw IllegalStateException("Could not compile shader")
     }
 }
