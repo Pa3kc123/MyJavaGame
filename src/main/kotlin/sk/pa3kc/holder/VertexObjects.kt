@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30
-import sk.pa3kc.poko.RawModel
+import sk.pa3kc.poko.model.RawModel
 
 const val VERTICES = 0
 const val TEXTURE_COORDS = 1

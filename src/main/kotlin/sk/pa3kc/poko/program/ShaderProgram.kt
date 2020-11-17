@@ -1,10 +1,12 @@
-package sk.pa3kc.poko
+package sk.pa3kc.poko.program
 
 import java.nio.FloatBuffer
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
+import sk.pa3kc.poko.shader.FragmentShader
+import sk.pa3kc.poko.shader.VertexShader
 
 @JvmField val buffer: FloatBuffer = BufferUtils.createFloatBuffer(16) // 4x4 matrix
 

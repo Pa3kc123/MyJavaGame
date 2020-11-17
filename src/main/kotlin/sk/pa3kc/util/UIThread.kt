@@ -3,18 +3,16 @@ package sk.pa3kc.util
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.*
 import org.lwjgl.system.MemoryUtil.NULL
-import sk.pa3kc.CAMERA
-import sk.pa3kc.KEYBOARD
-import sk.pa3kc.LIGHT
-import sk.pa3kc.SHADER_PROGRAM
+import sk.pa3kc.App2.CAMERA
+import sk.pa3kc.App2.KEYBOARD
+import sk.pa3kc.App2.LIGHT
 import sk.pa3kc.entity.Entity
-import sk.pa3kc.entity.move
-import sk.pa3kc.entity.rotate
 import sk.pa3kc.holder.NORMALS
 import sk.pa3kc.holder.ShaderPrograms
 import sk.pa3kc.holder.TEXTURE_COORDS
 import sk.pa3kc.holder.VERTICES
 import sk.pa3kc.mylibrary.matrix.math.MatrixMath
+import sk.pa3kc.poko.program.StaticShaderProgram
 
 class UIThread(
     private val windowId: Long,
@@ -80,7 +78,7 @@ class UIThread(
             CAMERA.move()
             CAMERA.rotate()
 
-            ShaderPrograms.useProgram(SHADER_PROGRAM)
+            val shaderProgram = ShaderPrograms.useProgram(0) as StaticShaderProgram
 
             this.models.forEach { entity ->
                 val model = entity.model
@@ -91,7 +89,7 @@ class UIThread(
                 GL20.glEnableVertexAttribArray(TEXTURE_COORDS)
                 GL20.glEnableVertexAttribArray(NORMALS)
 
-                SHADER_PROGRAM.loadLight(LIGHT)
+                shaderProgram.loadLight(LIGHT)
                 entity.rotate(0f, 0.5f, 0f)
                 // entity.move(0f, 0f, -0.2f)
 
@@ -102,8 +100,8 @@ class UIThread(
                     entity.rotZ,
                     entity.scale
                 )
-                SHADER_PROGRAM.loadTransformationMatrix(transformationMatrix)
-                SHADER_PROGRAM.loadViewMatrix(CAMERA)
+                shaderProgram.loadTransformationMatrix(transformationMatrix)
+                shaderProgram.loadViewMatrix(CAMERA)
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0)
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.texture.textureId)

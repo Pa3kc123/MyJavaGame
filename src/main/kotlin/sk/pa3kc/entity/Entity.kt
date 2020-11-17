@@ -1,6 +1,6 @@
 package sk.pa3kc.entity
 
-import sk.pa3kc.poko.TexturedModel
+import sk.pa3kc.poko.model.TexturedModel
 import sk.pa3kc.mylibrary.matrix.pojo.Vector3f
 
 data class Entity(
@@ -10,16 +10,16 @@ data class Entity(
     var rotY: Float,
     var rotZ: Float,
     var scale: Float
-)
+) {
+    fun move(dx: Float, dy: Float, dz: Float) {
+        this.position.x += dx
+        this.position.y += dy
+        this.position.z += dz
+    }
 
-fun Entity.move(dx: Float, dy: Float, dz: Float) {
-    this.position.x += dx
-    this.position.y += dy
-    this.position.z += dz
-}
-
-fun Entity.rotate(dx: Float, dy: Float, dz: Float) {
-    this.rotX += dx
-    this.rotY += dy
-    this.rotZ += dz
+    fun rotate(dx: Float, dy: Float, dz: Float) {
+        this.rotX += dx
+        this.rotY += dy
+        this.rotZ += dz
+    }
 }

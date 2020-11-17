@@ -1,29 +1,17 @@
-package sk.pa3kc.util
+@file:JvmName("ObjModelFactory")
 
-import java.io.*
-import java.text.ParseException
+package sk.pa3kc.util.obj
 
-object EmptyObjModel : ObjModel(
-    FloatArray(0),
-    FloatArray(0),
-    FloatArray(0),
-    IntArray(0)
-)
+import sk.pa3kc.ex.GLModelException
+import sk.pa3kc.ex.ObjParsingException
+import sk.pa3kc.util.validateAsFile
+import java.io.File
+import java.io.FileReader
+import java.io.IOException
 
-open class ObjModel(
-    val vertices: FloatArray,
-    val textureCoords: FloatArray,
-    val normals: FloatArray,
-    val indices: IntArray
-)
-
-@Throws(IOException::class, ParseException::class)
+@Throws(ObjParsingException::class)
 fun loadObjModel(filename: String): ObjModel {
-    val file = File(filename)
-
-    if (!file.exists()) {
-        throw FileNotFoundException(file.path + " does not exists")
-    }
+    val file = File(filename).validateAsFile()
 
     val vertices = ArrayList<Float>()
     val texturesRaw = ArrayList<Float>()
@@ -32,22 +20,23 @@ fun loadObjModel(filename: String): ObjModel {
 
     val faces = ArrayList<Array<String>>()
 
-    try {
-        FileReader(file).useLines { lines ->
-            for (line in lines.filterNot { it.startsWith("#") || it.isBlank() }) {
-                val splits = line.split("\\s+").toTypedArray()
-
-                when(splits[0]) {
-                    "v" -> processVertex2f(vertices, splits)
-                    "vt" -> processVertex2f(texturesRaw, splits)
-                    "vn" -> processVertex3f(normalsRaw, splits)
-                    "f" -> faces += splits
-                }
-            }
+    val lines = try{
+        FileReader(file).use { reader ->
+            reader.readLines().filterNot { it.startsWith("#") || it.isBlank() }
         }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        return EmptyObjModel
+    } catch (e: IOException) {
+        throw GLModelException("Error occurred while reading ${file.path}", e)
+    }
+
+    for (line in lines) {
+        val splits = line.split("\\s+").toTypedArray()
+
+        when(splits[0]) {
+            "v" -> processVertex2f(vertices, splits)
+            "vt" -> processVertex2f(texturesRaw, splits)
+            "vn" -> processVertex3f(normalsRaw, splits)
+            "f" -> faces += splits
+        }
     }
 
     val textures = FloatArray(texturesRaw.size)

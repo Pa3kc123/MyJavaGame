@@ -1,46 +1,180 @@
 package sk.pa3kc
 
-import java.awt.GraphicsEnvironment
-import kotlin.system.exitProcess
-
+import org.lwjgl.BufferUtils
+import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFWErrorCallback
+import org.lwjgl.glfw.GLFWErrorCallbackI
+import org.lwjgl.opengl.GL
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL20
 import sk.pa3kc.entity.Camera
-import sk.pa3kc.entity.Entity
 import sk.pa3kc.entity.Light
-import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
-import sk.pa3kc.mylibrary.matrix.pojo.Vector3f
-import sk.pa3kc.ui.GLWindow
+import sk.pa3kc.ex.GLModelException
 import sk.pa3kc.ui.call.KeyCallback
 
-import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.system.MemoryUtil.NULL
-import sk.pa3kc.holder.*
-import sk.pa3kc.poko.*
-import sk.pa3kc.util.ObjModel
-import sk.pa3kc.util.loadObjModel
+import sk.pa3kc.ex.GLShaderException
+import sk.pa3kc.holder.ShaderPrograms
+import sk.pa3kc.holder.loadModelToVAO
+import sk.pa3kc.mylibrary.utils.ArgsParser
+import sk.pa3kc.mylibrary.utils.get
+import sk.pa3kc.poko.program.StaticShaderProgram
 import java.io.File
-import sk.pa3kc.ui.Logger
+import sk.pa3kc.util.obj.loadObjModel
+import sk.pa3kc.util.validateAsDir
+import kotlin.system.exitProcess
 
-const val PATH_SHADERS_VERTEX = "shaders/vertex"
-const val PATH_SHADERS_FRAGMENT = "shaders/fragment"
+object App2 {
+    @JvmField val KEYBOARD = KeyCallback()
 
-@JvmField val KEYBOARD = KeyCallback()
-const val FOV = 70f
-const val NEAR_PLANE = 0.1f
-const val FAR_PLANE = 1000f
+    @JvmField val CAMERA = Camera()
+    @JvmField val LIGHT = Light(
+        0f, 0f, -55f,
+        1f, 1f, 1f
+    )
 
-var WINDOW_WIDTH = -1
-var WINDOW_HEIGHT = -1
+    @JvmField val PARAMS = ArgsParser()
 
-@JvmField val CAMERA = Camera()
-@JvmField val LIGHT = Light(
-    0f, 0f, -55f,
-    1f, 1f, 1f
-)
+    private lateinit var errCallback: GLFWErrorCallbackI
 
-lateinit var SHADER_PROGRAM: StaticShaderProgram
-@JvmField val CLASS_LOADER: ClassLoader = App::class.java.classLoader
+    @JvmStatic
+    fun main(args: Array<out String>) {
+        PARAMS.parse(*args)
 
-class App(args: Array<out String>) {
+        this.errCallback = GLFWErrorCallback.createPrint(System.err)
+        GLFW.glfwSetErrorCallback(errCallback)
+
+        if (!GLFW.glfwInit()) {
+            throw IllegalStateException("Cannot initialize GLFW")
+        }
+
+        val windowId = GLFW.glfwCreateWindow(500, 500, "", GL_NULL, GL_NULL)
+
+        if (windowId == GL_NULL) {
+            GLFW.glfwTerminate()
+            throw IllegalStateException("Cannot create new GL window")
+        }
+
+        GLFW.glfwMakeContextCurrent(windowId)
+        val glCapabilities = GL.createCapabilities()
+
+//        loadModels(PARAMS["models", "models"])
+
+        try {
+            generateShaderProgram(PARAMS["shaders", "shaders"])
+        } catch (e: GLShaderException) {
+            e.printStackTrace()
+            GLFW.glfwTerminate()
+            exitProcess(1)
+        }
+
+        val floatBuffer = BufferUtils.createFloatBuffer(6).apply {
+            put(
+                floatArrayOf(
+                    -.5f, -.5f, 0f, .5f, .5f, -.5f
+                )
+            )
+            flip()
+        }
+
+        val vertexBufferId = GL20.glGenBuffers().also {
+            GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, it)
+            GL20.glBufferData(GL20.GL_ARRAY_BUFFER, floatBuffer, GL20.GL_STATIC_DRAW)
+        }
+
+        GL20.glEnableVertexAttribArray(0)
+        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, Float.SIZE_BYTES * 2, 0)
+
+        ShaderPrograms.useProgram(0)
+
+        while (!GLFW.glfwWindowShouldClose(windowId)) {
+            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
+
+            GL20.glDrawArrays(GL20.GL_TRIANGLES, 0, 3)
+
+            GLFW.glfwSwapBuffers(windowId)
+
+            GLFW.glfwPollEvents()
+        }
+
+        if (ShaderPrograms.hasActiveProgram) {
+            ShaderPrograms.deactivatePrograms()
+        }
+
+        ShaderPrograms.close()
+
+        GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, GL_NULL.toInt())
+        GL20.glDeleteBuffers(vertexBufferId)
+
+        GLFW.glfwMakeContextCurrent(GL_NULL)
+
+        GLFW.glfwDestroyWindow(windowId)
+
+        GLFW.glfwTerminate()
+
+        if (App2::errCallback.isInitialized) {
+            GLFWErrorCallback.free(errCallback.address())
+        }
+    }
+
+    @JvmStatic
+    fun loadModels(rootPath: String) {
+        val rootDir = File(rootPath).validateAsDir()
+
+        for (entry in rootDir.list()!!) {
+            try {
+                loadObjModel("$rootPath/$entry").let {
+                    loadModelToVAO(it.vertices, it.textureCoords, it.normals, it.indices)
+                }
+            } catch (e: GLModelException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    @JvmStatic
+    @Throws(GLShaderException::class)
+    fun generateShaderProgram(rootPath: String) {
+        ShaderPrograms.add(
+            StaticShaderProgram.newStaticShaderProgram {
+                val rootDir = File(rootPath).validateAsDir()
+
+                for (entry in rootDir.list()!!) {
+                    val dir = File(rootDir, entry).validateAsDir()
+
+                    when(entry) {
+                        "vertex" -> {
+                            for (shaderSourcePath in dir.list()!!) {
+                                addVertexShader("$rootPath/$entry/$shaderSourcePath")
+                            }
+                        }
+                        "fragment" -> {
+                            for (shaderSourcePath in dir.list()!!) {
+                                addFragmentShader("$rootPath/$entry/$shaderSourcePath")
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }
+}
+
+/*
+object App {
+    @JvmStatic
+    fun main(args: Array<out String>) {
+        Logger.isVisible = true
+//    loadShaders("shaders")
+
+//    loadModels()
+
+//    loadTextures()
+
+//    loadSounds()
+
+//    App(args)
+    }
+
     var textureIndex = 0
 
     val window: GLWindow
@@ -82,7 +216,7 @@ class App(args: Array<out String>) {
         val obj: ObjModel
 
         try {
-            obj = loadObjModel(args[0])
+            obj = EmptyObjModel // loadObjModel(args[0])
         } catch (ex: Exception) {
             ex.printStackTrace()
 
@@ -112,44 +246,4 @@ class App(args: Array<out String>) {
         this.window.uiThread.add(entity)
     }
 }
-
-@Throws(IllegalArgumentException::class)
-fun loadShaders(rootPath: String) {
-    fun getDir(file: File): File {
-        return when {
-            !file.exists() -> throw IllegalArgumentException("Directory does not exists")
-            !file.isDirectory -> throw IllegalArgumentException("${file.path} is not directory")
-            else -> file
-        }
-    }
-    fun getDir(path: String): File = getDir(File(path))
-
-    getDir(rootPath).also { root ->
-        newStaticShaderProgram {
-            addVertexShaders(
-                *getDir(File(root, "vertex")).let {
-                    it.list() as Array<String>? ?: throw IllegalStateException("Missing vertex shaders")
-                }
-            )
-
-            addFragmentShaders(
-                *getDir(File(root, "texture")).let {
-                    it.list() as Array<String>? ?: throw IllegalStateException("Missing fragment shaders")
-                }
-            )
-        }
-    }
-}
-
-fun main(args: Array<out String>) {
-    Logger.isVisible = true
-//    loadShaders("shaders")
-
-//    loadModels()
-
-//    loadTextures()
-
-//    loadSounds()
-
-//    App(args)
-}
+*/
