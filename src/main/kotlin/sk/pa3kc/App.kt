@@ -4,6 +4,7 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWErrorCallbackI
+import org.lwjgl.glfw.GLFWKeyCallback
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
@@ -18,9 +19,13 @@ import sk.pa3kc.holder.loadModelToVAO
 import sk.pa3kc.mylibrary.utils.ArgsParser
 import sk.pa3kc.mylibrary.utils.get
 import sk.pa3kc.poko.program.StaticShaderProgram
+import sk.pa3kc.util.newFloatBuffer
+import sk.pa3kc.util.newIntBuffer
 import java.io.File
 import sk.pa3kc.util.obj.loadObjModel
 import sk.pa3kc.util.validateAsDir
+import java.awt.Color
+import java.nio.FloatBuffer
 import kotlin.system.exitProcess
 
 object App2 {
@@ -47,7 +52,8 @@ object App2 {
             throw IllegalStateException("Cannot initialize GLFW")
         }
 
-        val windowId = GLFW.glfwCreateWindow(500, 500, "", GL_NULL, GL_NULL)
+//        val windowId = GLFW.glfwCreateWindow(500, 500, "", GL_NULL, GL_NULL)
+        val windowId = GLFW.glfwCreateWindow(1920, 1080, "", GLFW.glfwGetPrimaryMonitor(), GL_NULL)
 
         if (windowId == GL_NULL) {
             GLFW.glfwTerminate()
@@ -56,6 +62,11 @@ object App2 {
 
         GLFW.glfwMakeContextCurrent(windowId)
         val glCapabilities = GL.createCapabilities()
+
+        val glVersion = GL11.glGetString(GL11.GL_VERSION)
+        val glslVersion = GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION)
+        println("OpenGL version: $glVersion")
+        println("GLSL version: $glslVersion")
 
 //        loadModels(PARAMS["models", "models"])
 
@@ -67,18 +78,19 @@ object App2 {
             exitProcess(1)
         }
 
-        val floatBuffer = BufferUtils.createFloatBuffer(6).apply {
-            put(
-                floatArrayOf(
-                    -.5f, -.5f, 0f, .5f, .5f, -.5f
-                )
-            )
-            flip()
-        }
+//        val vertices = newFloatBuffer(-.5f, -.5f, .5f, -.5f, .5f, .5f, -.5f, .5f)
+        val vertices = newFloatBuffer(-1f, -1f, 1f, -1f, 1f, 1f, -1f, 1f)
+        val indicesData = intArrayOf(0, 1, 2, 2, 3, 0)
+        val indices = newIntBuffer(*indicesData)
 
         val vertexBufferId = GL20.glGenBuffers().also {
             GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, it)
-            GL20.glBufferData(GL20.GL_ARRAY_BUFFER, floatBuffer, GL20.GL_STATIC_DRAW)
+            GL20.glBufferData(GL20.GL_ARRAY_BUFFER, vertices, GL20.GL_STATIC_DRAW)
+        }
+
+        val indexBufferId = GL20.glGenBuffers().also {
+            GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, it)
+            GL20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, indices, GL20.GL_STATIC_DRAW)
         }
 
         GL20.glEnableVertexAttribArray(0)
@@ -86,15 +98,50 @@ object App2 {
 
         ShaderPrograms.useProgram(0)
 
+        val u_ColorLoc = GL20.glGetUniformLocation(ShaderPrograms.activeProgramId, "u_Color")
+        GLFW.glfwSwapInterval(1)
+
+        var h = 0f
+        var increment = 0f
+
+        val keyCallback = GLFWKeyCallback.create { window, key, scancode, action, mods ->
+            if (action != GLFW.GLFW_PRESS) return@create
+
+            when (key) {
+                GLFW.GLFW_KEY_D -> {
+                    increment += 0.001f
+                }
+                GLFW.GLFW_KEY_A -> {
+                    increment -= 0.001f
+                }
+                GLFW.GLFW_KEY_ESCAPE -> {
+                    GLFW.glfwSetWindowShouldClose(windowId, true)
+                }
+            }
+        }
+        GLFW.glfwSetKeyCallback(windowId, keyCallback)
+
         while (!GLFW.glfwWindowShouldClose(windowId)) {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
 
-            GL20.glDrawArrays(GL20.GL_TRIANGLES, 0, 3)
+            Color.getHSBColor(h, 1f, .5f).let {
+                GL20.glUniform4f(u_ColorLoc, it.red / 255f, it.green / 255f, it.blue / 255f, 1f)
+            }
+
+            if (h == 360f) {
+                h = 0f
+            } else {
+                h += increment
+            }
+
+            GL20.glDrawElements(GL20.GL_TRIANGLES, indicesData.size, GL20.GL_UNSIGNED_INT, 0)
 
             GLFW.glfwSwapBuffers(windowId)
 
             GLFW.glfwPollEvents()
         }
+
+        GLFWKeyCallback.free(keyCallback.address())
 
         if (ShaderPrograms.hasActiveProgram) {
             ShaderPrograms.deactivatePrograms()
