@@ -1,12 +1,8 @@
 package sk.pa3kc.holder
 
-import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL20
-import java.nio.FloatBuffer
 import sk.pa3kc.poko.program.ShaderProgram
 import sk.pa3kc.util.GLCollection
-
-@JvmField val buffer: FloatBuffer = BufferUtils.createFloatBuffer(16) // 4x4 matrix
 
 object ShaderPrograms : GLCollection<ShaderProgram>() {
     var hasActiveProgram = false

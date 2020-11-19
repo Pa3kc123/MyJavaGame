@@ -1,6 +1,5 @@
 package sk.pa3kc
 
-import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWErrorCallbackI
@@ -8,6 +7,7 @@ import org.lwjgl.glfw.GLFWKeyCallback
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
+import org.lwjgl.opengl.GL30
 import sk.pa3kc.entity.Camera
 import sk.pa3kc.entity.Light
 import sk.pa3kc.ex.GLModelException
@@ -24,8 +24,6 @@ import sk.pa3kc.util.newIntBuffer
 import java.io.File
 import sk.pa3kc.util.obj.loadObjModel
 import sk.pa3kc.util.validateAsDir
-import java.awt.Color
-import java.nio.FloatBuffer
 import kotlin.system.exitProcess
 
 object App2 {
@@ -52,8 +50,14 @@ object App2 {
             throw IllegalStateException("Cannot initialize GLFW")
         }
 
-//        val windowId = GLFW.glfwCreateWindow(500, 500, "", GL_NULL, GL_NULL)
-        val windowId = GLFW.glfwCreateWindow(1920, 1080, "", GLFW.glfwGetPrimaryMonitor(), GL_NULL)
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3)
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3)
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE)
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE)
+        GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, GLFW.GLFW_TRUE)
+        GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, GLFW.GLFW_TRUE)
+
+        val windowId = GLFW.glfwCreateWindow(500, 500, "", GL_NULL, GL_NULL)
 
         if (windowId == GL_NULL) {
             GLFW.glfwTerminate()
@@ -78,10 +82,13 @@ object App2 {
             exitProcess(1)
         }
 
-//        val vertices = newFloatBuffer(-.5f, -.5f, .5f, -.5f, .5f, .5f, -.5f, .5f)
-        val vertices = newFloatBuffer(-1f, -1f, 1f, -1f, 1f, 1f, -1f, 1f)
+        val vertices = newFloatBuffer(-.5f, -.5f, .5f, -.5f, .5f, .5f, -.5f, .5f)
         val indicesData = intArrayOf(0, 1, 2, 2, 3, 0)
         val indices = newIntBuffer(*indicesData)
+
+        val vaoId = GL30.glGenVertexArrays().also {
+            GL30.glBindVertexArray(it)
+        }
 
         val vertexBufferId = GL20.glGenBuffers().also {
             GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, it)
@@ -99,40 +106,10 @@ object App2 {
         ShaderPrograms.useProgram(0)
 
         val u_ColorLoc = GL20.glGetUniformLocation(ShaderPrograms.activeProgramId, "u_Color")
-        GLFW.glfwSwapInterval(1)
-
-        var h = 0f
-        var increment = 0f
-
-        val keyCallback = GLFWKeyCallback.create { window, key, scancode, action, mods ->
-            if (action != GLFW.GLFW_PRESS) return@create
-
-            when (key) {
-                GLFW.GLFW_KEY_D -> {
-                    increment += 0.001f
-                }
-                GLFW.GLFW_KEY_A -> {
-                    increment -= 0.001f
-                }
-                GLFW.GLFW_KEY_ESCAPE -> {
-                    GLFW.glfwSetWindowShouldClose(windowId, true)
-                }
-            }
-        }
-        GLFW.glfwSetKeyCallback(windowId, keyCallback)
+        GL20.glUniform4f(u_ColorLoc, 0f, 1f, 1f, 1f)
 
         while (!GLFW.glfwWindowShouldClose(windowId)) {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
-
-            Color.getHSBColor(h, 1f, .5f).let {
-                GL20.glUniform4f(u_ColorLoc, it.red / 255f, it.green / 255f, it.blue / 255f, 1f)
-            }
-
-            if (h == 360f) {
-                h = 0f
-            } else {
-                h += increment
-            }
 
             GL20.glDrawElements(GL20.GL_TRIANGLES, indicesData.size, GL20.GL_UNSIGNED_INT, 0)
 
@@ -140,8 +117,6 @@ object App2 {
 
             GLFW.glfwPollEvents()
         }
-
-        GLFWKeyCallback.free(keyCallback.address())
 
         if (ShaderPrograms.hasActiveProgram) {
             ShaderPrograms.deactivatePrograms()
@@ -169,8 +144,8 @@ object App2 {
 
         for (entry in rootDir.list()!!) {
             try {
-                loadObjModel("$rootPath/$entry").let {
-                    loadModelToVAO(it.vertices, it.textureCoords, it.normals, it.indices)
+                loadObjModel("$rootPath/$entry").run {
+                    loadModelToVAO(vertices, textureCoords, normals, indices)
                 }
             } catch (e: GLModelException) {
                 e.printStackTrace()

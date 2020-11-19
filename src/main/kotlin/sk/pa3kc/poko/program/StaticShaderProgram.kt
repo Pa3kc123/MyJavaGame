@@ -20,9 +20,7 @@ open class StaticShaderProgram(
     companion object {
         @JvmStatic
         @Throws(GLShaderException::class)
-        fun newStaticShaderProgram(block: Builder.() -> Unit): StaticShaderProgram {
-            return Builder().apply(block).build()
-        }
+        inline fun newStaticShaderProgram(block: Builder.() -> Unit): StaticShaderProgram = Builder().apply(block).build()
     }
 
     fun loadTransformationMatrix(matrix: Matrix4f) {
@@ -47,7 +45,7 @@ open class StaticShaderProgram(
         }
     }
 
-    class Builder : ShaderProgram.Builder<StaticShaderProgram>() {
+    class Builder : ShaderProgram.Builder() {
         fun addVertexShader(path: String) {
             super.vertexShaders.add(VertexShader.newVertexShader(path))
         }

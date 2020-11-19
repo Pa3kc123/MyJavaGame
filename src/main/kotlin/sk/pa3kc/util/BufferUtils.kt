@@ -11,7 +11,7 @@ fun newFloatBuffer(vararg values: Float): FloatBuffer {
 
     return BufferUtils.createFloatBuffer(values.size).apply {
         put(values)
-        flip()
+        rewind()        //? Saving while 1 line of code #Optimisation
     }
 }
 
@@ -22,6 +22,6 @@ fun newIntBuffer(vararg values: Int): IntBuffer {
 
     return BufferUtils.createIntBuffer(values.size).apply {
         put(values)
-        flip()
+        rewind()
     }
 }

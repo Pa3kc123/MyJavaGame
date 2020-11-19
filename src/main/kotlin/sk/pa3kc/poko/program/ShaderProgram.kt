@@ -13,9 +13,9 @@ import sk.pa3kc.poko.shader.VertexShader
 abstract class ShaderProgram(
     val programId: Int
 ) : AutoCloseable {
-//    protected fun bindAttribute(attr: Int, varName: String) {
-//        GL20.glBindAttribLocation(this.programId, attr, varName)
-//    }
+    protected fun bindAttribute(attr: Int, varName: String) {
+        GL20.glBindAttribLocation(this.programId, attr, varName)
+    }
 
     protected fun getUniformLocation(uniformName: String): Int {
         return GL20.glGetUniformLocation(this.programId, uniformName)
@@ -29,9 +29,8 @@ abstract class ShaderProgram(
         GL20.glUniform3f(location, x, y, z)
     }
 
-    private fun Boolean.toGlBoolean() = if (this) GL11.GL_TRUE else GL11.GL_FALSE
     protected fun loadBool(location: Int, value: Boolean) {
-        GL20.glUniform1i(location, value.toGlBoolean())
+        GL20.glUniform1i(location, if (value) GL11.GL_TRUE else GL11.GL_FALSE)
     }
 
     protected fun loadMatrix(location: Int, matrix: Matrix4f) {
@@ -42,10 +41,10 @@ abstract class ShaderProgram(
 
     override fun close() = GL20.glDeleteProgram(this.programId)
 
-    abstract class Builder<T : ShaderProgram> {
+    abstract class Builder {
         protected val vertexShaders = ArrayList<VertexShader>()
         protected val fragmentShaders = ArrayList<FragmentShader>()
 
-        abstract fun build(): T
+        abstract fun build(): ShaderProgram
     }
 }

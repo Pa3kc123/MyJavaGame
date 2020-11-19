@@ -1,13 +1,12 @@
 package sk.pa3kc.holder
 
-import java.nio.FloatBuffer
-import java.nio.IntBuffer
-import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30
 import sk.pa3kc.poko.model.RawModel
+import sk.pa3kc.util.newFloatBuffer
+import sk.pa3kc.util.newIntBuffer
 
 const val VERTICES = 0
 const val TEXTURE_COORDS = 1
@@ -43,7 +42,7 @@ private fun bindVAO(vaoId: Int) = GL30.glBindVertexArray(vaoId)
 
 private fun storeDataInAttrList(attrId: Int, size: Int, attrData: FloatArray) {
     val vboId = createVBO()
-    val dataBuffer = createFloatBufferWithData(*attrData)
+    val dataBuffer = newFloatBuffer(*attrData)
 
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId)
     GL15.glBufferData(GL15.GL_ARRAY_BUFFER, dataBuffer, GL15.GL_STATIC_DRAW)
@@ -60,22 +59,8 @@ private fun bindIndicesBuffer(indices: IntArray) {
     val vboId = createVBO()
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboId)
 
-    val indicesBuffer = createIntBufferWithData(*indices)
+    val indicesBuffer = newIntBuffer(*indices)
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
 
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0)
-}
-
-private fun createFloatBufferWithData(vararg fData: Float): FloatBuffer {
-    return BufferUtils.createFloatBuffer(fData.size).apply {
-        put(fData)
-        flip()
-    }
-}
-
-private fun createIntBufferWithData(vararg iData: Int): IntBuffer {
-    return BufferUtils.createIntBuffer(iData.size).apply {
-        put(iData)
-        flip()
-    }
 }
