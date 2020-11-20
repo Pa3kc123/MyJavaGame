@@ -4,8 +4,6 @@ import java.io.File
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
 import sk.pa3kc.ex.GLShaderException
-import java.io.FileNotFoundException
-import sk.pa3kc.ui.Logger
 import sk.pa3kc.util.validateAsFile
 import java.io.IOException
 

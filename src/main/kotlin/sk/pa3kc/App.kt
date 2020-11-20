@@ -3,27 +3,30 @@ package sk.pa3kc
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWErrorCallbackI
-import org.lwjgl.glfw.GLFWKeyCallback
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
-import org.lwjgl.opengl.GL30
 import sk.pa3kc.entity.Camera
 import sk.pa3kc.entity.Light
 import sk.pa3kc.ex.GLModelException
-import sk.pa3kc.ui.call.KeyCallback
-
 import sk.pa3kc.ex.GLShaderException
 import sk.pa3kc.holder.ShaderPrograms
+import sk.pa3kc.holder.VertexArrayObjects
+import sk.pa3kc.holder.VertexBufferObjects
 import sk.pa3kc.holder.loadModelToVAO
 import sk.pa3kc.mylibrary.utils.ArgsParser
 import sk.pa3kc.mylibrary.utils.get
 import sk.pa3kc.poko.program.StaticShaderProgram
+import sk.pa3kc.poko.vertex.VertexArrayObject
+import sk.pa3kc.poko.vertex.VertexArrayObjectLayout
+import sk.pa3kc.poko.vertex.buffer.IndexBuffer
+import sk.pa3kc.poko.vertex.buffer.VertexBuffer
+import sk.pa3kc.ui.call.KeyCallback
 import sk.pa3kc.util.newFloatBuffer
 import sk.pa3kc.util.newIntBuffer
-import java.io.File
 import sk.pa3kc.util.obj.loadObjModel
 import sk.pa3kc.util.validateAsDir
+import java.io.File
 import kotlin.system.exitProcess
 
 object App2 {
@@ -78,30 +81,28 @@ object App2 {
             generateShaderProgram(PARAMS["shaders", "shaders"])
         } catch (e: GLShaderException) {
             e.printStackTrace()
+            GLFW.glfwMakeContextCurrent(GL_NULL)
+            GLFW.glfwDestroyWindow(windowId)
             GLFW.glfwTerminate()
-            exitProcess(1)
+            return
         }
 
         val vertices = newFloatBuffer(-.5f, -.5f, .5f, -.5f, .5f, .5f, -.5f, .5f)
         val indicesData = intArrayOf(0, 1, 2, 2, 3, 0)
         val indices = newIntBuffer(*indicesData)
 
-        val vaoId = GL30.glGenVertexArrays().also {
-            GL30.glBindVertexArray(it)
-        }
+        val vao = VertexArrayObject()
+        VertexArrayObjects.add(vao)
 
-        val vertexBufferId = GL20.glGenBuffers().also {
-            GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, it)
-            GL20.glBufferData(GL20.GL_ARRAY_BUFFER, vertices, GL20.GL_STATIC_DRAW)
-        }
+        val vbo = VertexBuffer(vertices)
+        VertexBufferObjects.add(vbo)
+        vao.addBuffer(0, vbo, VertexArrayObjectLayout(2, GL11.GL_FLOAT, false, Float.SIZE_BYTES))
 
-        val indexBufferId = GL20.glGenBuffers().also {
-            GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, it)
-            GL20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, indices, GL20.GL_STATIC_DRAW)
-        }
+//        GL20.glEnableVertexAttribArray(0)
+//        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, Float.SIZE_BYTES * 2, 0)
 
-        GL20.glEnableVertexAttribArray(0)
-        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, Float.SIZE_BYTES * 2, 0)
+        val indexBuffer = IndexBuffer(indices)
+        VertexBufferObjects.add(indexBuffer)
 
         ShaderPrograms.useProgram(0)
 
@@ -111,7 +112,10 @@ object App2 {
         while (!GLFW.glfwWindowShouldClose(windowId)) {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
 
-            GL20.glDrawElements(GL20.GL_TRIANGLES, indicesData.size, GL20.GL_UNSIGNED_INT, 0)
+            VertexArrayObjects.forEach {
+                it.bind()
+                GL20.glDrawElements(GL20.GL_TRIANGLES, indicesData.size, GL20.GL_UNSIGNED_INT, 0)
+            }
 
             GLFW.glfwSwapBuffers(windowId)
 
@@ -124,8 +128,8 @@ object App2 {
 
         ShaderPrograms.close()
 
-        GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, GL_NULL.toInt())
-        GL20.glDeleteBuffers(vertexBufferId)
+        VertexBufferObjects.close()
+        VertexArrayObjects.close()
 
         GLFW.glfwMakeContextCurrent(GL_NULL)
 

@@ -2,8 +2,6 @@
 
 package sk.pa3kc
 
-const val GL_TRUE = 1
-const val GL_FALSE = 0
 const val GL_NULL = 0L
 
 const val PATH_SHADERS_VERTEX = "shadersX/vertex"
