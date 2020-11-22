@@ -17,17 +17,14 @@ import sk.pa3kc.holder.loadModelToVAO
 import sk.pa3kc.mylibrary.utils.ArgsParser
 import sk.pa3kc.mylibrary.utils.get
 import sk.pa3kc.poko.program.StaticShaderProgram
+import sk.pa3kc.poko.vertex.BufferLayout
 import sk.pa3kc.poko.vertex.VertexArrayObject
-import sk.pa3kc.poko.vertex.VertexArrayObjectLayout
-import sk.pa3kc.poko.vertex.buffer.IndexBuffer
-import sk.pa3kc.poko.vertex.buffer.VertexBuffer
 import sk.pa3kc.ui.call.KeyCallback
 import sk.pa3kc.util.newFloatBuffer
 import sk.pa3kc.util.newIntBuffer
 import sk.pa3kc.util.obj.loadObjModel
 import sk.pa3kc.util.validateAsDir
 import java.io.File
-import kotlin.system.exitProcess
 
 object App2 {
     @JvmField val KEYBOARD = KeyCallback()
@@ -58,7 +55,7 @@ object App2 {
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE)
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE)
         GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, GLFW.GLFW_TRUE)
-        GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, GLFW.GLFW_TRUE)
+        GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, GLFW.GLFW_FALSE)
 
         val windowId = GLFW.glfwCreateWindow(500, 500, "", GL_NULL, GL_NULL)
 
@@ -94,15 +91,8 @@ object App2 {
         val vao = VertexArrayObject()
         VertexArrayObjects.add(vao)
 
-        val vbo = VertexBuffer(vertices)
-        VertexBufferObjects.add(vbo)
-        vao.addBuffer(0, vbo, VertexArrayObjectLayout(2, GL11.GL_FLOAT, false, Float.SIZE_BYTES))
-
-//        GL20.glEnableVertexAttribArray(0)
-//        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, Float.SIZE_BYTES * 2, 0)
-
-        val indexBuffer = IndexBuffer(indices)
-        VertexBufferObjects.add(indexBuffer)
+        vao.addBuffers(BufferLayout(0, vertices, 2))
+        vao.setIndexBuffer(indices)
 
         ShaderPrograms.useProgram(0)
 
@@ -128,7 +118,6 @@ object App2 {
 
         ShaderPrograms.close()
 
-        VertexBufferObjects.close()
         VertexArrayObjects.close()
 
         GLFW.glfwMakeContextCurrent(GL_NULL)

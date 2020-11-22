@@ -6,7 +6,7 @@ import sk.pa3kc.util.GLCollection
 
 object VertexArrayObjects : GLCollection<VertexArrayObject>() {
     var hasBoundObject = false
-    var lastBoundObject: VertexArrayObject? = null
+    var boundObject: VertexArrayObject? = null
 
     override fun close() {
         if (hasBoundObject) {
