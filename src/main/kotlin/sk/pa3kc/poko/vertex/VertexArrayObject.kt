@@ -3,69 +3,45 @@ package sk.pa3kc.poko.vertex
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30
-import sk.pa3kc.holder.VertexArrayObjects
-import sk.pa3kc.holder.VertexBufferObjects
-import sk.pa3kc.poko.vertex.buffer.IndexBuffer
+import sk.pa3kc.holder.GLContext
 import sk.pa3kc.poko.vertex.buffer.VertexBuffer
-import sk.pa3kc.util.GLCollection
+import sk.pa3kc.util.GLBindable
+import sk.pa3kc.util.forEachApply
 import java.nio.FloatBuffer
-import java.nio.IntBuffer
 
-class VertexArrayObject : AutoCloseable {
+class VertexArrayObject(
+    @JvmField
+    val context: GLContext
+) : GLBindable, AutoCloseable {
     val id = GL30.glGenVertexArrays()
-
-    lateinit var indexBuffer: IndexBuffer
+    var isBound = false
         private set
-    private val buffers = GLCollection<VertexBuffer>()
 
-    fun bind() {
-        GL30.glBindVertexArray(this.id)
-        VertexArrayObjects.hasBoundObject = true
-        VertexArrayObjects.boundObject = this
-    }
-    fun unbind() {
-        GL30.glBindVertexArray(0)
-        VertexArrayObjects.hasBoundObject = false
-        VertexArrayObjects.boundObject = null
-    }
+    fun addBuffers(vararg layouts: FloatBufferLayout) = editVao {
+        layouts.forEachApply {
+            context.vertexBufferObjects.add(VertexBuffer(context, data))
 
-    fun setIndexBuffer(data: IntBuffer) = editVao {
-        indexBuffer = IndexBuffer(data)
-    }
-
-    fun addBuffers(vararg layouts: BufferLayout) = editVao {
-        layouts.forEach { layout ->
-            with(layout) {
-                buffers.add(VertexBuffer(data))
-
-                GL20.glEnableVertexAttribArray(index)
-                GL20.glVertexAttribPointer(index, size, GL11.GL_FLOAT, normalized, Float.SIZE_BYTES * size, 0L)
-            }
+            GL20.glEnableVertexAttribArray(index)
+            GL20.glVertexAttribPointer(index, size, GL11.GL_FLOAT, normalized, Float.SIZE_BYTES * size, 0L)
         }
     }
 
     private inline fun editVao(block: () -> Unit) {
-        val lastBoundObject = VertexArrayObjects.boundObject
-
-        if (lastBoundObject != this@VertexArrayObject) {
-            bind()
-        }
-
+        bind()
         block()
+        unbind()
+    }
 
-        if (lastBoundObject != this@VertexArrayObject) {
-            lastBoundObject?.bind() ?: unbind()
-        }
+    override fun bind() {
+        GL30.glBindVertexArray(this.id)
+        this.isBound = true
+        this.context.vertexArrayObjects.hasBoundObject = true
+        this.context.vertexArrayObjects.boundObject = this
     }
 
     override fun close() {
-        if (VertexArrayObjects.boundObject == this) {
-            unbind()
-        }
-
-        this.buffers.close()
-        if (this::indexBuffer.isInitialized) {
-            this.indexBuffer.close()
+        if (this.isBound) {
+            this.unbind()
         }
         GL30.glDeleteVertexArrays(this.id)
     }
@@ -74,7 +50,7 @@ class VertexArrayObject : AutoCloseable {
     override fun hashCode() = id
 }
 
-data class BufferLayout(
+data class FloatBufferLayout(
     val index: Int,
     val data: FloatBuffer,
     val size: Int,

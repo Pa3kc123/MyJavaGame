@@ -1,6 +1,6 @@
 package sk.pa3kc.util
 
-open class GLCollection<T : AutoCloseable> : ArrayList<T>(), AutoCloseable {
+abstract class GLCollection<T> : ArrayList<T>(), AutoCloseable where T : GLBindable, T : AutoCloseable {
     open fun onAdd(index: Int, element: T) {}
     open fun onAddAll(index: Int, elements: Collection<T>) {}
 
@@ -38,4 +38,6 @@ open class GLCollection<T : AutoCloseable> : ArrayList<T>(), AutoCloseable {
             super.get(i).close()
         }
     }
+
+    abstract fun unbind()
 }

@@ -10,14 +10,12 @@ import sk.pa3kc.entity.Camera
 import sk.pa3kc.entity.Light
 import sk.pa3kc.ex.GLModelException
 import sk.pa3kc.ex.GLShaderException
-import sk.pa3kc.holder.ShaderPrograms
-import sk.pa3kc.holder.VertexArrayObjects
-import sk.pa3kc.holder.VertexBufferObjects
+import sk.pa3kc.holder.GLContext
 import sk.pa3kc.holder.loadModelToVAO
 import sk.pa3kc.mylibrary.utils.ArgsParser
 import sk.pa3kc.mylibrary.utils.get
 import sk.pa3kc.poko.program.StaticShaderProgram
-import sk.pa3kc.poko.vertex.BufferLayout
+import sk.pa3kc.poko.vertex.FloatBufferLayout
 import sk.pa3kc.poko.vertex.VertexArrayObject
 import sk.pa3kc.ui.call.KeyCallback
 import sk.pa3kc.util.newFloatBuffer
@@ -67,10 +65,9 @@ object App2 {
         GLFW.glfwMakeContextCurrent(windowId)
         val glCapabilities = GL.createCapabilities()
 
-        val glVersion = GL11.glGetString(GL11.GL_VERSION)
-        val glslVersion = GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION)
-        println("OpenGL version: $glVersion")
-        println("GLSL version: $glslVersion")
+        println("OpenGL version: ${GL11.glGetString(GL11.GL_VERSION)}")
+        println("GLSL version: ${GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION)}")
+        println("Max VAO attr count: ${GL11.glGetString(GL20.GL_MAX_VERTEX_ATTRIBS)}")
 
 //        loadModels(PARAMS["models", "models"])
 
@@ -89,20 +86,20 @@ object App2 {
         val indices = newIntBuffer(*indicesData)
 
         val vao = VertexArrayObject()
-        VertexArrayObjects.add(vao)
+        GLContext.addVertexArrayObjects(vao)
 
-        vao.addBuffers(BufferLayout(0, vertices, 2))
+        vao.addBuffers(FloatBufferLayout(0, vertices, 2))
         vao.setIndexBuffer(indices)
 
-        ShaderPrograms.useProgram(0)
+        GLContext.bindProgram(0)
 
-        val u_ColorLoc = GL20.glGetUniformLocation(ShaderPrograms.activeProgramId, "u_Color")
+        val u_ColorLoc = GL20.glGetUniformLocation(GLContext.shaderPrograms.activeProgramId, "u_Color")
         GL20.glUniform4f(u_ColorLoc, 0f, 1f, 1f, 1f)
 
         while (!GLFW.glfwWindowShouldClose(windowId)) {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
 
-            VertexArrayObjects.forEach {
+            GLContext.vertexArrayObjects.forEach {
                 it.bind()
                 GL20.glDrawElements(GL20.GL_TRIANGLES, indicesData.size, GL20.GL_UNSIGNED_INT, 0)
             }
@@ -112,13 +109,15 @@ object App2 {
             GLFW.glfwPollEvents()
         }
 
-        if (ShaderPrograms.hasActiveProgram) {
-            ShaderPrograms.deactivatePrograms()
-        }
+        GLContext.close()
 
-        ShaderPrograms.close()
-
-        VertexArrayObjects.close()
+//        if (ShaderPrograms.hasActiveProgram) {
+//            ShaderPrograms.deactivatePrograms()
+//        }
+//
+//        ShaderPrograms.close()
+//
+//        VertexArrayObjects.close()
 
         GLFW.glfwMakeContextCurrent(GL_NULL)
 
@@ -149,7 +148,7 @@ object App2 {
     @JvmStatic
     @Throws(GLShaderException::class)
     fun generateShaderProgram(rootPath: String) {
-        ShaderPrograms.add(
+        GLContext.addShaderPrograms(
             StaticShaderProgram.newStaticShaderProgram {
                 val rootDir = File(rootPath).validateAsDir()
 

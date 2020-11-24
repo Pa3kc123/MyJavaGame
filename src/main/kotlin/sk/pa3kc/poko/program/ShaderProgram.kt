@@ -7,12 +7,13 @@ import org.lwjgl.opengl.GL20
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
 import sk.pa3kc.poko.shader.FragmentShader
 import sk.pa3kc.poko.shader.VertexShader
+import sk.pa3kc.util.GLBindable
 
 @JvmField val buffer: FloatBuffer = BufferUtils.createFloatBuffer(16) // 4x4 matrix
 
 abstract class ShaderProgram(
     val programId: Int
-) : AutoCloseable {
+) : GLBindable, AutoCloseable {
     protected fun bindAttribute(attr: Int, varName: String) {
         GL20.glBindAttribLocation(this.programId, attr, varName)
     }
@@ -37,6 +38,10 @@ abstract class ShaderProgram(
         buffer.put(matrix.matrix, 0, matrix.matrix.size)
         buffer.rewind()
         GL20.glUniformMatrix4fv(location, false, buffer)
+    }
+
+    override fun bind() {
+        GL20.glUseProgram(this.programId)
     }
 
     override fun close() = GL20.glDeleteProgram(this.programId)
