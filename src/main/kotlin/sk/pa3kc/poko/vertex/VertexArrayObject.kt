@@ -10,16 +10,13 @@ import sk.pa3kc.util.forEachApply
 import java.nio.FloatBuffer
 
 class VertexArrayObject(
-    @JvmField
     val context: GLContext
 ) : GLBindable, AutoCloseable {
     val id = GL30.glGenVertexArrays()
-    var isBound = false
-        private set
 
     fun addBuffers(vararg layouts: FloatBufferLayout) = editVao {
         layouts.forEachApply {
-            context.vertexBufferObjects.add(VertexBuffer(context, data))
+            context.addVertexBufferObjects(VertexBuffer(context, data))
 
             GL20.glEnableVertexAttribArray(index)
             GL20.glVertexAttribPointer(index, size, GL11.GL_FLOAT, normalized, Float.SIZE_BYTES * size, 0L)
@@ -29,20 +26,14 @@ class VertexArrayObject(
     private inline fun editVao(block: () -> Unit) {
         bind()
         block()
-        unbind()
     }
 
     override fun bind() {
         GL30.glBindVertexArray(this.id)
-        this.isBound = true
-        this.context.vertexArrayObjects.hasBoundObject = true
         this.context.vertexArrayObjects.boundObject = this
     }
 
     override fun close() {
-        if (this.isBound) {
-            this.unbind()
-        }
         GL30.glDeleteVertexArrays(this.id)
     }
 

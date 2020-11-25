@@ -3,12 +3,12 @@ package sk.pa3kc.util
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.*
 import org.lwjgl.system.MemoryUtil.NULL
-import sk.pa3kc.App2.CAMERA
-import sk.pa3kc.App2.KEYBOARD
-import sk.pa3kc.App2.LIGHT
+import sk.pa3kc.App
+import sk.pa3kc.App.CAMERA
+import sk.pa3kc.App.KEYBOARD
+import sk.pa3kc.App.LIGHT
 import sk.pa3kc.entity.Entity
 import sk.pa3kc.holder.NORMALS
-import sk.pa3kc.holder.ShaderPrograms
 import sk.pa3kc.holder.TEXTURE_COORDS
 import sk.pa3kc.holder.VERTICES
 import sk.pa3kc.mylibrary.matrix.math.MatrixMath
@@ -77,8 +77,8 @@ class UIThread(
 
             CAMERA.move()
             CAMERA.rotate()
-
-            val shaderProgram = ShaderPrograms.useProgram(0) as StaticShaderProgram
+            App.context.shaderPrograms[0].bind()
+            val shaderProgram = App.context.shaderPrograms.activeProgram as StaticShaderProgram
 
             this.models.forEach { entity ->
                 val model = entity.model
@@ -113,7 +113,7 @@ class UIThread(
                 GL30.glBindVertexArray(0)
             }
 
-            ShaderPrograms.deactivatePrograms()
+            App.context.shaderPrograms.unbind()
 
             glfwSwapBuffers(this.windowId)
         }

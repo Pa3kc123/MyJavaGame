@@ -4,7 +4,7 @@ import sk.pa3kc.poko.program.ShaderProgram
 import sk.pa3kc.poko.vertex.VertexArrayObject
 import sk.pa3kc.poko.vertex.VertexBufferObject
 
-object GLContext : AutoCloseable {
+class GLContext : AutoCloseable {
     val vertexArrayObjects = VertexArrayObjects()
     val vertexBufferObjects = VertexBufferObjects()
     val shaderPrograms = ShaderPrograms()
@@ -13,16 +13,19 @@ object GLContext : AutoCloseable {
     fun addVertexBufferObjects(obj: VertexBufferObject) = this.vertexBufferObjects.add(obj)
     fun addShaderPrograms(obj: ShaderProgram) = this.shaderPrograms.add(obj)
 
-    fun bindVAO(index: Int) = this.vertexArrayObjects[index].bind()
-//!   Not the best idea due to Index/Vertex buffers share same collection
-//    fun bindVBO(index: Int) = this.vertexBufferObjects[index].bind()
-    fun bindProgram(index: Int) = this.shaderPrograms.bindProgram(index)
-
     override fun close() {
-        if (this.shaderPrograms.hasActiveProgram) {
-            this.shaderPrograms.unbindProgram()
+        if (this.vertexArrayObjects.hasBoundObject) {
+            this.vertexArrayObjects.unbind()
         }
+        if (this.vertexBufferObjects.targetList.isNotEmpty()) {
+            this.vertexBufferObjects.unbind()
+        }
+        if (this.shaderPrograms.hasActiveProgram) {
+            this.shaderPrograms.unbind()
+        }
+
         this.vertexArrayObjects.close()
         this.vertexBufferObjects.close()
+        this.shaderPrograms.close()
     }
 }

@@ -1,7 +1,7 @@
 package sk.pa3kc.entity
 
 import org.lwjgl.glfw.GLFW
-import sk.pa3kc.App2.KEYBOARD
+import sk.pa3kc.App.KEYBOARD
 
 import sk.pa3kc.mylibrary.matrix.pojo.Vector3f
 

@@ -5,22 +5,20 @@ import org.lwjgl.opengl.GL20
 import sk.pa3kc.entity.Camera
 import sk.pa3kc.entity.Light
 import sk.pa3kc.ex.GLShaderException
-import sk.pa3kc.holder.ShaderPrograms
+import sk.pa3kc.holder.GLContext
 import sk.pa3kc.mylibrary.matrix.math.MatrixMath
 import sk.pa3kc.mylibrary.matrix.pojo.Matrix4f
 import sk.pa3kc.poko.shader.FragmentShader
 import sk.pa3kc.poko.shader.VertexShader
-import sk.pa3kc.ui.Logger
 
 open class StaticShaderProgram(
-    programId: Int
-) : ShaderProgram(
-    programId
-) {
+    override val context: GLContext,
+    id: Int
+) : ShaderProgram(id) {
     companion object {
         @JvmStatic
         @Throws(GLShaderException::class)
-        inline fun newStaticShaderProgram(block: Builder.() -> Unit): StaticShaderProgram = Builder().apply(block).build()
+        inline fun newStaticShaderProgram(context: GLContext, block: Builder.() -> Unit): StaticShaderProgram = Builder().apply(block).build(context)
     }
 
     fun loadTransformationMatrix(matrix: Matrix4f) {
@@ -53,7 +51,7 @@ open class StaticShaderProgram(
             super.fragmentShaders.add(FragmentShader.newFragmentShader(path))
         }
 
-        override fun build(): StaticShaderProgram {
+        override fun build(context: GLContext): StaticShaderProgram {
             val programId = GL20.glCreateProgram().also { programId ->
                 val shaders = super.vertexShaders + super.fragmentShaders
 
@@ -93,7 +91,7 @@ open class StaticShaderProgram(
                 }
             }
 
-            return StaticShaderProgram(programId)
+            return StaticShaderProgram(context, programId)
         }
     }
 }

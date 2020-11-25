@@ -7,12 +7,20 @@ import sk.pa3kc.util.GLCollection
 class VertexBufferObjects : GLCollection<VertexBufferObject>() {
     val targetList = HashMap<Int, VertexBufferObject?>()
 
-    override fun close() {
+    fun unbind(index: Int) {
+        GL15.glBindBuffer(index, 0)
+        targetList[index] = null
+    }
+    override fun unbind() {
         this.targetList.forEach { (target, obj) ->
             if (obj !== null) {
                 GL15.glBindBuffer(target, 0)
             }
         }
+    }
+
+    override fun close() {
+        this.unbind()
         super.close()
     }
 }

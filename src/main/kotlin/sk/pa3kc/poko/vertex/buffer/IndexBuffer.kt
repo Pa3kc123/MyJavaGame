@@ -7,7 +7,6 @@ import sk.pa3kc.poko.vertex.VertexBufferObject
 import java.nio.IntBuffer
 
 class IndexBuffer(
-    @JvmField
     override val context: GLContext
 ) : VertexBufferObject(GL15.GL_ELEMENT_ARRAY_BUFFER) {
     constructor(context: GLContext, data: IntBuffer, usage: Int = GL_DEFAULT_VBO_USAGE) : this(context) {

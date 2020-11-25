@@ -6,20 +6,21 @@ import sk.pa3kc.util.GLCollection
 
 class VertexArrayObjects : GLCollection<VertexArrayObject>() {
     var hasBoundObject = false
+        private set
     var boundObject: VertexArrayObject? = null
+        set(value) {
+            field = value
+            this.hasBoundObject = field != null
+        }
 
     override fun unbind() {
         GL30.glBindVertexArray(0)
-        this.boundObject?.apply {
-            isBound = false
-            context.vertexArrayObjects.hasBoundObject = false
-            context.vertexArrayObjects.boundObject = null
-        }
+        this.boundObject = null
     }
 
     override fun close() {
-        if (hasBoundObject) {
-            GL30.glBindVertexArray(0)
+        if (this.hasBoundObject) {
+            this.unbind()
         }
         super.close()
     }

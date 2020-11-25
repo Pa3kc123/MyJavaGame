@@ -7,11 +7,14 @@ import sk.pa3kc.util.GLCollection
 class ShaderPrograms : GLCollection<ShaderProgram>() {
     var hasActiveProgram = false
         private set
-    var activeProgramId: ShaderProgram? = null
+    var activeProgram: ShaderProgram? = null
+        set(value) {
+            field = value
+            this.hasActiveProgram = field != null
+        }
 
     override fun unbind() {
         GL20.glUseProgram(0)
-        this.hasActiveProgram = false
-        this.activeProgramId = null
+        this.activeProgram = null
     }
 }

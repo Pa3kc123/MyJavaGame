@@ -10,7 +10,6 @@ import sk.pa3kc.poko.vertex.VertexBufferObject
 import java.nio.FloatBuffer
 
 class VertexBuffer(
-    @JvmField
     override val context: GLContext
 ) : VertexBufferObject(GL15.GL_ARRAY_BUFFER) {
     constructor(context: GLContext, data: FloatBuffer, usage: Int = GL_DEFAULT_VBO_USAGE) : this(context) {

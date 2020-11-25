@@ -17,6 +17,7 @@ import sk.pa3kc.mylibrary.utils.get
 import sk.pa3kc.poko.program.StaticShaderProgram
 import sk.pa3kc.poko.vertex.FloatBufferLayout
 import sk.pa3kc.poko.vertex.VertexArrayObject
+import sk.pa3kc.poko.vertex.buffer.IndexBuffer
 import sk.pa3kc.ui.call.KeyCallback
 import sk.pa3kc.util.newFloatBuffer
 import sk.pa3kc.util.newIntBuffer
@@ -24,7 +25,7 @@ import sk.pa3kc.util.obj.loadObjModel
 import sk.pa3kc.util.validateAsDir
 import java.io.File
 
-object App2 {
+object App {
     @JvmField val KEYBOARD = KeyCallback()
 
     @JvmField val CAMERA = Camera()
@@ -34,6 +35,8 @@ object App2 {
     )
 
     @JvmField val PARAMS = ArgsParser()
+
+    val context = GLContext()
 
     private lateinit var errCallback: GLFWErrorCallbackI
 
@@ -67,7 +70,7 @@ object App2 {
 
         println("OpenGL version: ${GL11.glGetString(GL11.GL_VERSION)}")
         println("GLSL version: ${GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION)}")
-        println("Max VAO attr count: ${GL11.glGetString(GL20.GL_MAX_VERTEX_ATTRIBS)}")
+        println("Max VAO attr count: ${GL11.glGetInteger(GL20.GL_MAX_VERTEX_ATTRIBS)}")
 
 //        loadModels(PARAMS["models", "models"])
 
@@ -82,42 +85,32 @@ object App2 {
         }
 
         val vertices = newFloatBuffer(-.5f, -.5f, .5f, -.5f, .5f, .5f, -.5f, .5f)
-        val indicesData = intArrayOf(0, 1, 2, 2, 3, 0)
-        val indices = newIntBuffer(*indicesData)
+        val indices = newIntBuffer(0, 1, 2, 2, 3, 0)
 
-        val vao = VertexArrayObject()
-        GLContext.addVertexArrayObjects(vao)
+        val vao = VertexArrayObject(context)
+        context.addVertexArrayObjects(vao)
 
         vao.addBuffers(FloatBufferLayout(0, vertices, 2))
-        vao.setIndexBuffer(indices)
+        val indexBuffer = IndexBuffer(context, indices)
 
-        GLContext.bindProgram(0)
+        context.shaderPrograms[0].bind()
 
-        val u_ColorLoc = GL20.glGetUniformLocation(GLContext.shaderPrograms.activeProgramId, "u_Color")
+        val u_ColorLoc = GL20.glGetUniformLocation(context.shaderPrograms.activeProgram!!.id, "u_Color")
         GL20.glUniform4f(u_ColorLoc, 0f, 1f, 1f, 1f)
 
         while (!GLFW.glfwWindowShouldClose(windowId)) {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
 
-            GLContext.vertexArrayObjects.forEach {
-                it.bind()
-                GL20.glDrawElements(GL20.GL_TRIANGLES, indicesData.size, GL20.GL_UNSIGNED_INT, 0)
-            }
+            indexBuffer.bind()
+            context.vertexArrayObjects[0].bind()
+            GL20.glDrawElements(GL20.GL_TRIANGLES, indices.capacity(), GL20.GL_UNSIGNED_INT, 0)
 
             GLFW.glfwSwapBuffers(windowId)
 
             GLFW.glfwPollEvents()
         }
 
-        GLContext.close()
-
-//        if (ShaderPrograms.hasActiveProgram) {
-//            ShaderPrograms.deactivatePrograms()
-//        }
-//
-//        ShaderPrograms.close()
-//
-//        VertexArrayObjects.close()
+        context.close()
 
         GLFW.glfwMakeContextCurrent(GL_NULL)
 
@@ -125,7 +118,7 @@ object App2 {
 
         GLFW.glfwTerminate()
 
-        if (App2::errCallback.isInitialized) {
+        if (App::errCallback.isInitialized) {
             GLFWErrorCallback.free(errCallback.address())
         }
     }
@@ -148,8 +141,8 @@ object App2 {
     @JvmStatic
     @Throws(GLShaderException::class)
     fun generateShaderProgram(rootPath: String) {
-        GLContext.addShaderPrograms(
-            StaticShaderProgram.newStaticShaderProgram {
+        context.addShaderPrograms(
+            StaticShaderProgram.newStaticShaderProgram(context) {
                 val rootDir = File(rootPath).validateAsDir()
 
                 for (entry in rootDir.list()!!) {
