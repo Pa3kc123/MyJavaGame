@@ -104,7 +104,7 @@ class UIThread(
                 shaderProgram.loadViewMatrix(CAMERA)
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0)
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.texture.textureId)
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.texture.id)
                 GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.vertexCount, GL11.GL_UNSIGNED_INT, 0)
 
                 GL20.glDisableVertexAttribArray(VERTICES)

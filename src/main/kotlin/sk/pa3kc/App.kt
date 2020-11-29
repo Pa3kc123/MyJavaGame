@@ -22,6 +22,7 @@ import sk.pa3kc.ui.call.KeyCallback
 import sk.pa3kc.util.newFloatBuffer
 import sk.pa3kc.util.newIntBuffer
 import sk.pa3kc.util.obj.loadObjModel
+import sk.pa3kc.util.ortho
 import sk.pa3kc.util.validateAsDir
 import java.io.File
 
@@ -77,11 +78,10 @@ object App {
         try {
             generateShaderProgram(PARAMS["shaders", "shaders"])
         } catch (e: GLShaderException) {
-            e.printStackTrace()
             GLFW.glfwMakeContextCurrent(GL_NULL)
             GLFW.glfwDestroyWindow(windowId)
             GLFW.glfwTerminate()
-            return
+            throw e
         }
 
         val vertices = newFloatBuffer(-.5f, -.5f, .5f, -.5f, .5f, .5f, -.5f, .5f)
@@ -95,8 +95,13 @@ object App {
 
         context.shaderPrograms[0].bind()
 
-        val u_ColorLoc = GL20.glGetUniformLocation(context.shaderPrograms.activeProgram!!.id, "u_Color")
+        val activeProgram = context.shaderPrograms.activeProgram!!
+
+        val u_ColorLoc = GL20.glGetUniformLocation(activeProgram.id, "u_Color")
         GL20.glUniform4f(u_ColorLoc, 0f, 1f, 1f, 1f)
+
+        val u_MVP = GL20.glGetUniformLocation(activeProgram.id, "u_MVP")
+        GL20.glUniformMatrix4fv(u_MVP, false, ortho(-2f, 2f, -1.5f, 1.5f, -1f, 1f))
 
         while (!GLFW.glfwWindowShouldClose(windowId)) {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
